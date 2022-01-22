@@ -29,7 +29,6 @@
         // multiple magazines in a level
         // Bilder an der Wand
         // Zombies können nur einen 160 grad Winkel überblicken
-        // Fenster werden durch Schüsse zerstört
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
         // Schatten
@@ -244,7 +243,7 @@
             var geo_doors_horz = new THREE.BoxGeometry(sz_grid, .1, hecke_hoehe);
             var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2, transparent: true, opacity: 0.7 });
             var mat_doors_horz = new THREE.MeshStandardMaterial({ map: doortexture, transparent: true, opacity: 0.7 });
-            var mat_windows = new THREE.MeshBasicMaterial({ color: 0x7777ff, transparent: true, opacity: 0.5 })
+            var mat_windows = new THREE.MeshBasicMaterial({ color: 0x7777cc, transparent: true, opacity: 0.4 })
             var mat_wall = new THREE.MeshStandardMaterial({ map: walltexture });
             const doors_height_closed = hecke_hoehe / 2;
             const doors_height_open = 3 * hecke_hoehe / 2;
@@ -353,7 +352,7 @@
                             mytransporter.position.set((orglab_x - i) * sz_grid, (orglab_y + j) * sz_grid, 1);
                         }
                         else if (getcontent(i, j) == 'H') {
-                            var geometry = new THREE.SphereGeometry(.3)
+                            var geometry = new THREE.SphereGeometry(.3, 64, 32)
                             geometry.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 2));
                             var tmp = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x3333ff, }));
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j) * sz_grid, 1);
@@ -361,7 +360,7 @@
                             labhealthdoses.push(tmp);
                         }
                         else if (getcontent(i, j) == 'A') {
-                            var geometry = new THREE.SphereGeometry(.3)
+                            var geometry = new THREE.SphereGeometry(.3, 64, 32)
                             geometry.applyMatrix(new THREE.Matrix4().makeScale(.5, 2, 2));
                             var tmp = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: armortexture, }));
                             tmp.rotation.z = pi / 4;
@@ -747,15 +746,12 @@
                                 }
                             }
                             // check egohit
-                            damage_onhold--;
-                            if (damage_onhold < 0) damage_onhold = 0;
-                            if (collision_reason == cr_ego && status == st_play && damage_onhold <= 0) {
+                            if (collision_reason == cr_ego && status == st_play && damage_onhold < Date.now()) {
                                 let damage = 20;
                                 damage *= (100 - status_armor) / 100;
                                 status_health -= damage;
                                 HAua.play();
-                                console.log("HAua.play() 672");
-                                damage_onhold = 60;
+                                damage_onhold = Date.now() + 800;
                                 if (status_health <= 0) {
                                     status_health = 0;
                                     set_status(st_gameover);
@@ -870,7 +866,6 @@
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
                         if (thereis_collision(i.object, -1, false, false)) {
-                            console.log(collision_reason);
                             i.object.visible = false;
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens) {
@@ -1116,6 +1111,7 @@
                     render_game();
                     switch (eventq) {
                         case 13:
+                            status_health = 80;
                             ZombieEating.pause();
                             Invaders.play();
                             ZombieMoaning.play();
