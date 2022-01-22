@@ -1,3 +1,8 @@
+var images = [];
+images['0'] = 'suna.png'
+images['1'] = 'talara.png'
+images['2'] = 'cov-19.png'
+
 var lab = Array();
 //
 var thislab = [];
@@ -15,17 +20,17 @@ thislab.push("+                                   +");
 thislab.push("+   +-w-+   +-w-+   +-w-+   +-w-+   +");
 thislab.push("+   w z2w   w z2w   w z2w   w z2w   +");
 thislab.push("+   +-w-+   +-w-+   +-w-+   +-w-+   +");
+thislab.push("p2                                  P2");
 thislab.push("+                                   +");
+thislab.push("p2                                  P2");
 thislab.push("+                                   +");
-thislab.push("+                                   +");
-thislab.push("+                                   +");
-thislab.push("+                                   +");
+thislab.push("p2                                  P2");
 thislab.push("+                                   +");
 thislab.push("+                                   +");
 thislab.push("+                                   +");
 thislab.push("+                                   +");
 thislab.push("+---+---+---+---+---+---+-D-+---+---+");
-thislab.push("+ E   M   A   L + Z3                +");
+thislab.push("+ E   M   A   L | Z3                +");
 thislab.push("+---+---+       +---+---+   +---+---+");
 thislab.push("+ A             D                 H +");
 thislab.push("+---+---+---+---+---+---+---+---+---+");

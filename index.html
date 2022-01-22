@@ -224,9 +224,27 @@
                 }
                 return ' ';
             }
+            function whats_up_ix(x, y) {
+                try {
+                    return lab[mylevel][y * 2][x * 4 + 3];
+                }
+                catch (err) {
+                    return ' ';
+                }
+                return ' ';
+            }
             function whats_left(x, y) {
                 try {
                     return lab[mylevel][y * 2 + 1][x * 4];
+                }
+                catch (err) {
+                    return ' ';
+                }
+                return ' ';
+            }
+            function whats_left_ix(x, y) {
+                try {
+                    return lab[mylevel][y * 2 + 1][x * 4 + 1];
                 }
                 catch (err) {
                     return ' ';
@@ -238,7 +256,9 @@
             var aliens_x0 = 0;
             var aliens_y0 = 0;
             var geo_wall_vert = new THREE.BoxGeometry(.2, sz_grid, hecke_hoehe);
+            var geo_image_vert = new THREE.BoxGeometry(.3, sz_grid / 2, hecke_hoehe / 2);
             var geo_wall_horz = new THREE.BoxGeometry(sz_grid, .2, hecke_hoehe)
+            var geo_image_horz = new THREE.BoxGeometry(sz_grid / 2, .3, hecke_hoehe / 2)
             var geo_doors_vert = new THREE.BoxGeometry(.1, sz_grid, hecke_hoehe);
             var geo_doors_horz = new THREE.BoxGeometry(sz_grid, .1, hecke_hoehe);
             var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2, transparent: true, opacity: 0.7 });
@@ -273,11 +293,36 @@
                 for (i = 0; i < lab[mylevel][0].length / 4; ++i) {
                     for (j = 0; j < lab[mylevel].length / 2; ++j) {
                         // left
-                        if ("+|".includes(whats_left(i, j))) {
+                        let chleft = whats_left(i, j);
+                        let chleftix = whats_left_ix(i, j);
+                        if ("pP+|".includes(chleft)) {
                             var tmp = new THREE.Mesh(geo_wall_vert, mat_wall);
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, hecke_hoehe / 2);
                             scene.add(tmp);
                             labwalls.push(tmp);
+                            if ('pP'.includes(chleft) && !('- |+'.includes(chleftix))) {
+                                const loader = new THREE.TextureLoader();
+                                let rtexture = loader.load(images[chleftix]);
+                                rtexture.center = new THREE.Vector2(0.5, 0.5);
+                                rtexture.rotation = Math.PI / 2;
+                                let ltexture = loader.load(images[chleftix]);
+                                ltexture.center = new THREE.Vector2(0.5, 0.5);
+                                ltexture.rotation = -Math.PI / 2;
+                                const cubeMaterials = [
+                                    new THREE.MeshBasicMaterial({ map: rtexture }), //top side
+                                    new THREE.MeshBasicMaterial({ map: ltexture }), //bottom side
+                                    undefined, undefined, undefined, undefined,
+                                    /*
+                                    new THREE.MeshBasicMaterial({ map: rtexture }), //top side
+                                    new THREE.MeshBasicMaterial({ map: loader.load(images[chleftix]) }), //bottom side
+                                    new THREE.MeshBasicMaterial({ map: rtexture }), //top side
+                                    new THREE.MeshBasicMaterial({ map: loader.load(images[chleftix]) }), //bottom side
+                                    */
+                                ];
+                                var tmp2 = new THREE.Mesh(geo_image_vert, cubeMaterials);
+                                tmp2.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, hecke_hoehe / 2);
+                                scene.add(tmp2);
+                            }
                         }
                         else if ('Dd'.includes(whats_left(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_vert, mat_doors_vert);
@@ -296,19 +341,45 @@
                             var tmp = 1;
                         }
                         // up
-                        if (whats_up(i, j) == '-') {
+                        let chup = whats_up(i, j);
+                        let chupix = whats_up_ix(i, j);
+                        if ('pP-'.includes(chup)) {
                             var tmp = new THREE.Mesh(geo_wall_horz, mat_wall);
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, hecke_hoehe / 2);
                             scene.add(tmp);
                             labwalls.push(tmp);
+                            if ('pP'.includes(chup) && !('- |+'.includes(chupix))) {
+                                const loader = new THREE.TextureLoader();
+                                let rtexture = loader.load(images[chupix]);
+                                rtexture.center = new THREE.Vector2(0.5, 0.5);
+                                rtexture.rotation = Math.PI;
+                                const cubeMaterials = [
+                                    undefined, undefined,
+                                    /*
+                                    new THREE.MeshBasicMaterial({ map: loader.load('alien.png') }), //right side
+                                    new THREE.MeshBasicMaterial({ map: loader.load('alien.png') }), //left side
+                                    */
+                                    new THREE.MeshBasicMaterial({ map: rtexture }), //top side
+                                    new THREE.MeshBasicMaterial({ map: loader.load(images[chupix]) }), //bottom side
+                                    undefined, undefined,
+                                    /*
+                                    new THREE.MeshBasicMaterial({ map: loader.load(images[chupix]) }), //front side
+                                    new THREE.MeshBasicMaterial({ map: loader.load(images[chupix]) }), //back side
+                                    */
+                                ];
+                                //var tmp2 = new THREE.Mesh(geo_image_horz, new THREE.MeshStandardMaterial({ side: THREE.DoubleSide, map: new THREE.TextureLoader().load(images[chupix]) }));
+                                var tmp2 = new THREE.Mesh(geo_image_horz, cubeMaterials);
+                                tmp2.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, hecke_hoehe / 2);
+                                scene.add(tmp2);
+                            }
                         }
-                        else if ('Dd'.includes(whats_up(i, j))) {
+                        else if ('Dd'.includes(chup)) {
                             var tmp = new THREE.Mesh(geo_doors_horz, mat_doors_horz);
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, doors_height_closed);
                             scene.add(tmp);
                             labdoors.push(tmp);
                         }
-                        else if ('Ww'.includes(whats_up(i, j))) {
+                        else if ('Ww'.includes(chup)) {
                             var tmp = new THREE.Mesh(geo_doors_horz, mat_windows);
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, doors_height_closed);
                             tmp.name = 'window';
