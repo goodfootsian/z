@@ -27,6 +27,12 @@
         // eggs from which zombies hatch
         // introduce several weapons 1) Glock 17 2) H&K MP5
         // multiple magazines in a level
+        // Bilder an der Wand
+        // Zombies können nur einen 160 grad Winkel überblicken
+        // Fenster werden durch Schüsse zerstört
+        // Effekte und Sound beim Wechsel in das nächste Level
+        // Hänsel und Gretel Steinchen
+        // Schatten
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
             eventq = event.keyCode;
@@ -63,7 +69,7 @@
             text2.style.left = 10 + 'px';
             text2.style.width = 100;
             text2.style.height = 200;
-            text2.style.fontSize = "32px";
+            text2.style.fontSize = "12px";
             text2.style.backgroundColor = "white";
             text2.innerHTML = "-";
             document.body.appendChild(text2);
@@ -236,8 +242,8 @@
             var geo_wall_horz = new THREE.BoxGeometry(sz_grid, .2, hecke_hoehe)
             var geo_doors_vert = new THREE.BoxGeometry(.1, sz_grid, hecke_hoehe);
             var geo_doors_horz = new THREE.BoxGeometry(sz_grid, .1, hecke_hoehe);
-            var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2 });
-            var mat_doors_horz = new THREE.MeshStandardMaterial({ map: doortexture });
+            var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2, transparent: true, opacity: 0.7 });
+            var mat_doors_horz = new THREE.MeshStandardMaterial({ map: doortexture, transparent: true, opacity: 0.7 });
             var mat_windows = new THREE.MeshBasicMaterial({ color: 0x7777ff, transparent: true, opacity: 0.5 })
             var mat_wall = new THREE.MeshStandardMaterial({ map: walltexture });
             const doors_height_closed = hecke_hoehe / 2;
@@ -274,13 +280,13 @@
                             scene.add(tmp);
                             labwalls.push(tmp);
                         }
-                        else if (whats_left(i, j) == 'D') {
+                        else if ('Dd'.includes(whats_left(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_vert, mat_doors_vert);
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, doors_height_closed);
                             scene.add(tmp);
                             labdoors.push(tmp);
                         }
-                        else if (whats_left(i, j) == 'W') {
+                        else if ('Ww'.includes(whats_left(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_vert, mat_windows);
                             tmp.name = 'window';
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, doors_height_closed);
@@ -297,13 +303,13 @@
                             scene.add(tmp);
                             labwalls.push(tmp);
                         }
-                        else if (whats_up(i, j) == 'D') {
+                        else if ('Dd'.includes(whats_up(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_horz, mat_doors_horz);
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, doors_height_closed);
                             scene.add(tmp);
                             labdoors.push(tmp);
                         }
-                        else if (whats_up(i, j) == 'W') {
+                        else if ('Ww'.includes(whats_up(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_horz, mat_windows);
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, doors_height_closed);
                             tmp.name = 'window';
@@ -319,11 +325,11 @@
                             myego_x0 = -i + orglab_x;
                             myego_y0 = j + orglab_y;
                         }
-                        else if (getcontent(i, j) == 'M') {
+                        else if ('Mm'.includes(getcontent(i, j))) {
                             mymagazine_x0 = -i + orglab_x;
                             mymagazine_y0 = j + orglab_y;
                         }
-                        else if (getcontent(i, j) == 'Z') {
+                        else if ('Zz'.includes(getcontent(i, j))) {
                             aliens_x0 = -i + orglab_x;
                             aliens_y0 = j + orglab_y;
                             let n = getnumber(i, j);
@@ -497,17 +503,19 @@
             // check collision
             var cix = -1;
             var collision_reason = -1;
+            var collision_object = undefined;
             const cr_magazine = 1;
             const cr_ego = 2;
             const cr_labwalls = 3;
             const cr_aliens = 4;
             const cr_transporter = 5;
-            const cr_labdoors = 5;
-            const cr_healthdose = 6;
-            const cr_armors = 7;
+            const cr_labdoors = 6;
+            const cr_healthdose = 7;
+            const cr_armors = 8;
             function thereis_collision(a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
+                collision_object = undefined;
                 cix = -1;
                 if (check_ego) {
                     let b1 = new THREE.Box3();
@@ -587,6 +595,7 @@
                     }
                 }
                 for (let j of labwalls) {
+                    if (!j.visible) continue;
                     let b1 = new THREE.Box3();
                     b1.setFromObject(j);
                     let b2 = new THREE.Box3();
@@ -594,6 +603,7 @@
                     b2.intersect(b1);
                     if (!b2.isEmpty()) {
                         collision_reason = cr_labwalls;
+                        collision_object = j;
                         return true;
                     }
                 }
@@ -605,6 +615,7 @@
                     b2.intersect(b1);
                     if (!b2.isEmpty()) {
                         collision_reason = cr_labdoors;
+                        collision_object = j;
                         return true;
                     }
                 }
@@ -618,6 +629,7 @@
                     b2.intersect(b1);
                     if (!b2.isEmpty()) {
                         cix = j;
+                        collision_object = aliens[j];
                         collision_reason = cr_aliens;
                         return true;
                     }
@@ -633,7 +645,7 @@
             animate();
 
             function render_game() {
-                text2.innerHTML = "Level: "
+                text2.innerHTML = "<h1>Level: "
                     + (mylevel + 1)
                     + "<br>"
                     + "Score: " + score
@@ -643,9 +655,9 @@
                     + "Health: " + parseInt(status_health) + "%"
                     + "<br>"
                     + "Armor: " + parseInt(status_armor) + "%"
-                    + "<br>"
-                    + "<br><code>"
-                    + "Keys: "
+                    + "</h1>"
+                    + "<br><pre>"
+                    + "Keys:<br>"
                     + "->          turn right<br>"
                     + "<-          turn left<br>"
                     + "up arrow    move forward<br>"
@@ -656,7 +668,7 @@
                     + "CTRL        shoot<br>"
                     + "SPACE       open door<br>"
 
-                    + "</code>"
+                    + "<pre>"
                     ;
                 // Update the orbit controls
                 camera.updateProjectionMatrix();
@@ -858,19 +870,26 @@
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
                         if (thereis_collision(i.object, -1, false, false)) {
-                            //console.log(collision_reason);
+                            console.log(collision_reason);
                             i.object.visible = false;
                             i.fireball.visible = false;
-                            if (cix >= 0) {
-                                aliens[cix].visible = false;
+                            if (collision_reason == cr_aliens) {
+                                collision_object.visible = false;
                                 SeeYa.pause();
                                 Sterben.play();
                                 ++score;
                                 if (!mymagazine.visible) {
                                     mymagazine.visible = true;
-                                    mymagazine.position.set(aliens[cix].position.x, aliens[cix].position.y, mymagazine.position.z);
+                                    mymagazine.position.set(collision_object.position.x, collision_object.position.y, mymagazine.position.z);
                                 }
-                            } else {
+                            }
+                            else if (collision_reason == cr_labwalls) {
+                                if (collision_object.name == "window") {
+                                    collision_object.visible = false;
+                                    HBouff.play();
+                                }
+                            }
+                            else {
                                 HBouff.play();
                             }
                             i.status = bs_none;
