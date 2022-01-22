@@ -31,7 +31,7 @@
         // Zombies können nur einen 160 grad Winkel überblicken
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
-        // Schatten
+        // Größe von Lawn und Dach an Labyrinth angepasst
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
             eventq = event.keyCode;
@@ -154,7 +154,7 @@
             const n_grid = 30;
             const sz_grid = 5;
             // create the lawn
-            var mylawn = new THREE.Mesh(new THREE.BoxGeometry(n_grid * sz_grid, n_grid * sz_grid, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
+            var mylawn = new THREE.Mesh(new THREE.BoxGeometry(sz_grid, sz_grid, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
             mylawn.position.set(0, 0, -.1);
             scene.add(mylawn);
             // create the ceiling
@@ -199,7 +199,7 @@
             //
             function getcontent(x, y) {
                 try {
-                    return lab[mylevel][y * 2 + 1][x * 4 + 2];
+                    return lab[mylevel].matrix[y * 2 + 1][x * 4 + 2];
                 }
                 catch (err) {
                     return ' ';
@@ -208,7 +208,7 @@
             }
             function getnumber(x, y) {
                 try {
-                    let c = lab[mylevel][y * 2 + 1][x * 4 + 3];
+                    let c = lab[mylevel].matrix[y * 2 + 1][x * 4 + 3];
                     if (c == ' ') return 0;
                     return parseInt(c);
                 }
@@ -219,7 +219,7 @@
             }
             function whats_up(x, y) {
                 try {
-                    return lab[mylevel][y * 2][x * 4 + 2];
+                    return lab[mylevel].matrix[y * 2][x * 4 + 2];
                 }
                 catch (err) {
                     return ' ';
@@ -228,7 +228,7 @@
             }
             function whats_up_ix(x, y) {
                 try {
-                    return lab[mylevel][y * 2][x * 4 + 3];
+                    return lab[mylevel].matrix[y * 2][x * 4 + 3];
                 }
                 catch (err) {
                     return ' ';
@@ -237,7 +237,7 @@
             }
             function whats_left(x, y) {
                 try {
-                    return lab[mylevel][y * 2 + 1][x * 4];
+                    return lab[mylevel].matrix[y * 2 + 1][x * 4];
                 }
                 catch (err) {
                     return ' ';
@@ -246,15 +246,15 @@
             }
             function whats_left_ix(x, y) {
                 try {
-                    return lab[mylevel][y * 2 + 1][x * 4 + 1];
+                    return lab[mylevel].matrix[y * 2 + 1][x * 4 + 1];
                 }
                 catch (err) {
                     return ' ';
                 }
                 return ' ';
             }
-            const orglab_x = 5;
-            const orglab_y = -5;
+            const orglab_x = 4;
+            const orglab_y = -7;
             var aliens_x0 = 0;
             var aliens_y0 = 0;
             var geo_wall_vert = new THREE.BoxGeometry(.2, sz_grid, hecke_hoehe);
@@ -291,9 +291,12 @@
                 }
                 aliens = [];
                 aliens_angle = [];
+                szlab_x = lab[mylevel].matrix[0].length / 4;
+                szlab_y = lab[mylevel].matrix.length / 2;
+                mylawn.scale.set(szlab_x + 2, szlab_y + 1, 1);
                 mytransporter.visible = false;
-                for (i = 0; i < lab[mylevel][0].length / 4; ++i) {
-                    for (j = 0; j < lab[mylevel].length / 2; ++j) {
+                for (i = 0; i < szlab_x; ++i) {
+                    for (j = 0; j < szlab_y; ++j) {
                         // left
                         let chleft = whats_left(i, j);
                         let chleftix = whats_left_ix(i, j);
@@ -724,8 +727,9 @@
             animate();
 
             function render_game() {
-                text2.innerHTML = "<h1>Level: "
-                    + (mylevel + 1)
+                text2.innerHTML = "<h1>Level "
+                    + (mylevel + 1) + '<br>Title: "'
+                    + lab[mylevel].title + '"'
                     + "<br>"
                     + "Score: " + score
                     + "<br>"
