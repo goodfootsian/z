@@ -77,6 +77,7 @@
 
             // Create the renderer and add it to the page's body element
             var renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.shadowMap.enabled = true;
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
@@ -145,9 +146,10 @@
             myegolight.position.set(2, 5, 2);
             //myego.add(myegolight);
             // spotlight of ego
-            var myegospotlight = new THREE.SpotLight();
+            var myegospotlight = new THREE.SpotLight(0xffffff, .2);
             myegospotlight.position.set(5, 5, 5);
             myegospotlight.target = myego;
+            myegospotlight.castShadow = true; // default false
             scene.add(myegospotlight);
             const n_grid = 30;
             const sz_grid = 5;
@@ -298,6 +300,8 @@
                         if ("pP+|".includes(chleft)) {
                             var tmp = new THREE.Mesh(geo_wall_vert, mat_wall);
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, hecke_hoehe / 2);
+                            tmp.castShadow = true; // default is false
+                            tmp.receiveShadow = true; // default is false                     
                             scene.add(tmp);
                             labwalls.push(tmp);
                             if ('pP'.includes(chleft) && !('- |+'.includes(chleftix))) {
@@ -346,6 +350,8 @@
                         if ('pP-'.includes(chup)) {
                             var tmp = new THREE.Mesh(geo_wall_horz, mat_wall);
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, hecke_hoehe / 2);
+                            tmp.castShadow = true; // default is false
+                            tmp.receiveShadow = true; // default is false                     
                             scene.add(tmp);
                             labwalls.push(tmp);
                             if ('pP'.includes(chup) && !('- |+'.includes(chupix))) {
@@ -406,8 +412,9 @@
                             if (n <= 0) n = 1;
                             //
                             for (k = 0; k < n; ++k) {
-                                var tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, 2), new THREE.MeshBasicMaterial({ map: alientexture }));
+                                var tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, 2), new THREE.MeshStandardMaterial({ map: alientexture }));
                                 tmp.position.set(aliens_x0 * sz_grid + k % 3 - 1, aliens_y0 * sz_grid + parseInt(k / 3) - 1, 1);
+                                tmp.castShadow = true; // default is false
                                 tmp.name = 'alien';
                                 scene.add(tmp);
                                 aliens.push(tmp);
@@ -434,6 +441,8 @@
                             var geometry = new THREE.SphereGeometry(.3, 64, 32)
                             geometry.applyMatrix(new THREE.Matrix4().makeScale(.5, 2, 2));
                             var tmp = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: armortexture, }));
+                            tmp.castShadow = true; // default is false
+                            tmp.receiveShadow = false; // default is false                     
                             tmp.rotation.z = pi / 4;
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j) * sz_grid, 1);
                             scene.add(tmp);
