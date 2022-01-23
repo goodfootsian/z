@@ -2,6 +2,8 @@ var images = [];
 images['0'] = 'suna.png'
 images['1'] = 'talara.png'
 images['2'] = 'cov-19.png'
+images['3'] = 'Gibson.png'
+images['4'] = 'Squier.png'
 
 class lab_class {
     constructor() {
@@ -12,6 +14,29 @@ class lab_class {
 
 
 var lab = [];
+//
+var thislab = new lab_class;
+lab.push(thislab);
+thislab.title = "The Stage"
+thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
+thislab.matrix.push("+                                   | T +");
+thislab.matrix.push("+   +---+---+-D-+---+---+-D-+---+---+   +");
+thislab.matrix.push("+   +                               |   +");
+thislab.matrix.push("+   +                               +   +");
+thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   +                                   +");
+thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   +                                   +");
+thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   +                                   +");
+thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   +                                   +");
+thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   +                               +   +");
+thislab.matrix.push("+   +                               |   +");
+thislab.matrix.push("+   +---+---+ D +---+---+ D +---+---+   +");
+thislab.matrix.push("+ E   L                       Z2  M |   +");
+thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 //
 var thislab = new lab_class;
 lab.push(thislab);
@@ -67,9 +92,9 @@ thislab.matrix.push("+                   +   +           +---+---+---+---+-D-+  
 thislab.matrix.push("W                   D   D H         +     A   A   A     |    ");
 thislab.matrix.push("+                   +   +---+---+---+                   +    ");
 thislab.matrix.push("W                   +           D                       W    ");
-thislab.matrix.push("+---+---+-P0+---+---+   +---+-D-+---+                   |    ");
-thislab.matrix.push("W         A   A   Z |   +         H |                   W    ");
-thislab.matrix.push("+                   +   +           +                   |    ");
+thislab.matrix.push("+---+-P4+-P0+---+---+   +---+-D-+---+                   |    ");
+thislab.matrix.push("W       P3A   A   Z |   +         H |                   W    ");
+thislab.matrix.push("+       +           +   +           +                   |    ");
 thislab.matrix.push("W                   D   +         H |                   W    ");
 thislab.matrix.push("+                   +   +           +                   |    ");
 thislab.matrix.push("W                   |   + A   H   H |                   |    ");
