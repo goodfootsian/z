@@ -62,15 +62,16 @@
 
             var text2 = document.createElement('div');
             text2.style.position = 'absolute';
-            //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
             text2.style.top = 10 + 'px';
             text2.style.left = 10 + 'px';
             text2.style.width = 100;
             text2.style.height = 200;
             text2.style.fontSize = "12px";
+            text2.style.color = "#ffffff";
             text2.style.backgroundColor = "#00000000";
             text2.innerHTML = "-";
             document.body.appendChild(text2);
+
             var score = 0;
 
 
@@ -242,8 +243,8 @@
             var geo_image_horz = new THREE.BoxGeometry(sz_grid / 2, .3, hecke_hoehe / 2)
             var geo_doors_vert = new THREE.BoxGeometry(.1, sz_grid, hecke_hoehe);
             var geo_doors_horz = new THREE.BoxGeometry(sz_grid, .1, hecke_hoehe);
-            var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2, transparent: true, opacity: 0.7 });
-            var mat_doors_horz = new THREE.MeshStandardMaterial({ map: doortexture, transparent: true, opacity: 0.7 });
+            var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2, transparent: true, opacity: 0.9 });
+            var mat_doors_horz = new THREE.MeshStandardMaterial({ map: doortexture, transparent: true, opacity: 0.9 });
             var mat_windows = new THREE.MeshBasicMaterial({ color: 0x7777cc, transparent: true, opacity: 0.4 })
             var mat_wall = new THREE.MeshStandardMaterial({ map: walltexture });
             const doors_height_closed = hecke_hoehe / 2;
@@ -1257,10 +1258,6 @@
 
 <body>
 
-    <div style="padding: 20px; position: absolute;">
-        <h1>
-        </h1>
-    </div>
 
 </body>
 
