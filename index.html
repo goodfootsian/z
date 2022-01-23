@@ -171,6 +171,10 @@
             }
 
             // create the Labyrinth
+            const sz_aliens = 1;
+            var alienscorpses = [];
+            var aliens = [];
+            var aliens_angle = [];
             var labwalls = [];
             var labdoors = [];
             var labhealthdoses = [];
@@ -271,12 +275,16 @@
                 for (i of aliens) {
                     scene.remove(i);
                 }
+                aliens = [];
+                aliens_angle = [];
                 for (i of labpics) {
                     scene.remove(i);
                 }
                 labpics = [];
-                aliens = [];
-                aliens_angle = [];
+                for (i of alienscorpses) {
+                    scene.remove(i);
+                }
+                alienscorpses = [];
                 szlab_x = lab[mylevel].matrix[0].length / 4;
                 szlab_y = lab[mylevel].matrix.length / 2;
                 mytransporter.visible = false;
@@ -489,11 +497,6 @@
                 }
                 return md;
             }
-
-            // create the aliens
-            const sz_aliens = 1;
-            var aliens = [];
-            var aliens_angle = [];
 
             function init_game() {
                 console.log("init_game()");
@@ -952,6 +955,12 @@
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens) {
                                 collision_object.visible = false;
+                                //let tmp = new THREE.Mesh(new THREE.SphereGeometry(5), new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 }));
+                                let tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, .5), new THREE.MeshStandardMaterial({ map: alientexture }));
+                                tmp.position.set(collision_object.position.x, collision_object.position.y, 0);
+                                //tmp.position.set(0, 0, 0);
+                                scene.add(tmp);
+                                alienscorpses.push(tmp);
                                 //SeeYa.pause();
                                 Sterben.play();
                                 ++score;
