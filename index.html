@@ -154,7 +154,7 @@
             const n_grid = 30;
             const sz_grid = 5;
             // create the lawn
-            var mylawn = new THREE.Mesh(new THREE.BoxGeometry(1, 1, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
+            var mylawn = new THREE.Mesh(new THREE.BoxGeometry(1, 1, .2), new THREE.MeshStandardMaterial({ map: new THREE.TextureLoader().load('detentionblock.png') }));
             mylawn.position.set(0, 0, -.1);
             scene.add(mylawn);
             // create the ceiling
@@ -249,6 +249,8 @@
             var geo_doors_horz = new THREE.BoxGeometry(sz_grid, .1, hecke_hoehe);
             var mat_doors_vert = new THREE.MeshBasicMaterial({ map: doortexture2, transparent: true, opacity: 0.9 });
             var mat_doors_horz = new THREE.MeshStandardMaterial({ map: doortexture, transparent: true, opacity: 0.9 });
+            var mat_aliens = new THREE.MeshStandardMaterial({ map: alientexture });
+            var mat_deadaliens = new THREE.MeshStandardMaterial({ map: new THREE.TextureLoader().load('Guts.png') });
             var mat_windows = new THREE.MeshBasicMaterial({ color: 0x7777cc, transparent: true, opacity: 0.4 })
             var mat_wall = new THREE.MeshStandardMaterial({ map: walltexture });
             const doors_height_closed = hecke_hoehe / 2;
@@ -410,7 +412,7 @@
                             if (n <= 0) n = 1;
                             //
                             for (k = 0; k < n; ++k) {
-                                var tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, 2), new THREE.MeshStandardMaterial({ map: alientexture }));
+                                var tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, 2), mat_aliens);
                                 tmp.position.set(aliens_x0 * sz_grid + k % 3 - 1, aliens_y0 * sz_grid + parseInt(k / 3) - 1, 1);
                                 tmp.castShadow = true; // default is false
                                 tmp.name = 'alien';
@@ -862,13 +864,15 @@
                 }
                 if (n_distance > 0) {
                     avg_distance = sum_distance / n_distance
-                    let volume = 5 / avg_distance / avg_distance;
+                    let volume = 5 / avg_distance; // / avg_distance;
                     if (volume < 0) volume = 0;
                     if (volume >= 1) volume = 1;
                     ZombieMoaning.volume = volume;
+                    console.log("ZombieMoaning.volume=" + ZombieMoaning.volume);
                 } else {
                     Invaders.pause();
                     ZombieMoaning.volume = 0;
+                    console.log("ZombieMoaning.volume=" + ZombieMoaning.volume);
                 }
             }
 
@@ -955,10 +959,8 @@
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens) {
                                 collision_object.visible = false;
-                                //let tmp = new THREE.Mesh(new THREE.SphereGeometry(5), new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 }));
-                                let tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, .5), new THREE.MeshStandardMaterial({ map: alientexture }));
+                                let tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, 2 * sz_aliens, .5), mat_deadaliens);
                                 tmp.position.set(collision_object.position.x, collision_object.position.y, 0);
-                                //tmp.position.set(0, 0, 0);
                                 scene.add(tmp);
                                 alienscorpses.push(tmp);
                                 //SeeYa.pause();
@@ -1189,6 +1191,7 @@
                     switch (eventq) {
                         case 13:
                             ZombieMoaning.play();
+                            console.log("ZombieMoaning.play()");
                             init_game();
                             set_status(st_title);
                             break;
@@ -1207,6 +1210,7 @@
                             ZombieEating.pause();
                             Invaders.play();
                             ZombieMoaning.play();
+                            console.log("ZombieMoaning.play()");
                             init_game();
                             set_status(st_play);
                             break;
