@@ -162,6 +162,7 @@
             myceiling.position.set(0, 0, hecke_hoehe + .1);
             scene.add(myceiling);
             // create the grid
+            /*
             var grid = Array();
             for (i = -n_grid; i < n_grid; ++i) {
                 for (j = -n_grid; j <= n_grid; ++j) {
@@ -172,21 +173,11 @@
                     grid.push(org);
                 }
             }
+            */
 
             function set_status(s) {
                 console.log("status=" + s);
                 status = s;
-            }
-
-            function mark_near_gridpoint() {
-                for (let i of grid) {
-                    d = myego.position.distanceTo(i.position);
-                    if (d < sz_grid * 2) {
-                        i.visible = true;
-                    } else {
-                        //i.visible = false;
-                    }
-                }
             }
 
             // create the Labyrinth
@@ -194,6 +185,7 @@
             var labdoors = [];
             var labhealthdoses = [];
             var labarmors = [];
+            var labpics = [];
             var mylevel = 0;
             var lab_n_aliens = 0;
             //
@@ -253,8 +245,6 @@
                 }
                 return ' ';
             }
-            const orglab_x = 4;
-            const orglab_y = -7;
             var aliens_x0 = 0;
             var aliens_y0 = 0;
             var geo_wall_vert = new THREE.BoxGeometry(.2, sz_grid, hecke_hoehe);
@@ -269,6 +259,8 @@
             var mat_wall = new THREE.MeshStandardMaterial({ map: walltexture });
             const doors_height_closed = hecke_hoehe / 2;
             const doors_height_open = 3 * hecke_hoehe / 2;
+            const orglab_x = 4;
+            const orglab_y = -7;
             function build_lab() {
                 for (i of labwalls) {
                     scene.remove(i);
@@ -289,6 +281,10 @@
                 for (i of aliens) {
                     scene.remove(i);
                 }
+                for (i of labpics) {
+                    scene.remove(i);
+                }
+                labpics = [];
                 aliens = [];
                 aliens_angle = [];
                 szlab_x = lab[mylevel].matrix[0].length / 4;
@@ -316,8 +312,8 @@
                                 ltexture.center = new THREE.Vector2(0.5, 0.5);
                                 ltexture.rotation = -Math.PI / 2;
                                 const cubeMaterials = [
-                                    new THREE.MeshBasicMaterial({ map: rtexture }), //top side
-                                    new THREE.MeshBasicMaterial({ map: ltexture }), //bottom side
+                                    new THREE.MeshStandardMaterial({ map: rtexture }), //top side
+                                    new THREE.MeshStandardMaterial({ map: ltexture }), //bottom side
                                     undefined, undefined, undefined, undefined,
                                     /*
                                     new THREE.MeshBasicMaterial({ map: rtexture }), //top side
@@ -329,6 +325,7 @@
                                 var tmp2 = new THREE.Mesh(geo_image_vert, cubeMaterials);
                                 tmp2.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, hecke_hoehe / 2);
                                 scene.add(tmp2);
+                                labpics.push(tmp2);
                             }
                         }
                         else if ('Dd'.includes(whats_left(i, j))) {
@@ -368,8 +365,8 @@
                                     new THREE.MeshBasicMaterial({ map: loader.load('alien.png') }), //right side
                                     new THREE.MeshBasicMaterial({ map: loader.load('alien.png') }), //left side
                                     */
-                                    new THREE.MeshBasicMaterial({ map: rtexture }), //top side
-                                    new THREE.MeshBasicMaterial({ map: loader.load(images[chupix]) }), //bottom side
+                                    new THREE.MeshStandardMaterial({ map: rtexture }), //top side
+                                    new THREE.MeshStandardMaterial({ map: loader.load(images[chupix]) }), //bottom side
                                     undefined, undefined,
                                     /*
                                     new THREE.MeshBasicMaterial({ map: loader.load(images[chupix]) }), //front side
@@ -380,6 +377,7 @@
                                 var tmp2 = new THREE.Mesh(geo_image_horz, cubeMaterials);
                                 tmp2.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, hecke_hoehe / 2);
                                 scene.add(tmp2);
+                                labpics.push(tmp2);
                             }
                         }
                         else if ('Dd'.includes(chup)) {
@@ -1212,7 +1210,6 @@
                     process_ego();
                     process_doors();
                     render_game();
-                    mark_near_gridpoint();
                     if (thereis_collision(myego_sphere, -1, false, false, true)) {
                         if (collision_reason == cr_transporter) {
                             mylevel++;
