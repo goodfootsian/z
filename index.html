@@ -31,7 +31,6 @@
         // Zombies können nur einen 160 grad Winkel überblicken
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
-        // Größe von Lawn und Dach an Labyrinth angepasst
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
             eventq = event.keyCode;
@@ -576,6 +575,7 @@
             const st_insertcoin = 0;
             const st_play = 1;
             const st_gameover = 2;
+            const st_title = 3;
             var status = st_insertcoin;
             var status_health = 80;  // [0, 100] 0 = tot, 100 = kerngesund
             var status_armor = 0; // [0, 100] 0 = kein Schutz, 100 = unverwundbar
@@ -1169,6 +1169,7 @@
                 eventq = 0;
             }
 
+            var title_t0 = 0;
             function animate() {
                 time_cnt++;
                 {
@@ -1215,6 +1216,8 @@
                             mylevel++;
                             if (mylevel < lab.length) {
                                 init_game();
+                                set_status(st_title);
+                                title_t0 = Date.now();
                             }
                             else {
                                 set_status(st_gameover);
@@ -1222,6 +1225,16 @@
                             }
                         }
                     }
+                }
+                else if (status == st_title) {
+                    const title_d = 3000;
+                    let title_pct = (Date.now() - title_t0) * 100 / title_d;
+                    console.log(title_pct);
+                    if (title_pct >= 100) {
+                        set_status(st_play);
+                    }
+                    process_ego();
+                    render_game();
                 }
 
                 // Keep the animation going
