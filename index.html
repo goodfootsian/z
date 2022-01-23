@@ -543,7 +543,8 @@
             ZombieMoaning.loop = true;
             var ZombieEating = new Audio('Zombie Eating.mp3');
             ZombieEating.loop = true;
-            var SeeYa = new Audio('SeeYa.mp3');
+            var SeeYa = new Howl({ src: ['SeeYa.mp3'] });
+            //var SeeYa = new Audio('SeeYa.mp3');
             var myego_direction = new THREE.Vector3(0, 0, 0);
 
 
@@ -849,14 +850,12 @@
                             debugcnt++;
                         }
                     }
-                    if (direct_view_flag) {
-                        SeeYa.play();
-                        ZombieMoaning.pause();
-                    }
-                    else {
-                        SeeYa.pause();
-                        ZombieMoaning.play();
-                    }
+                }
+                if (direct_view_flag) {
+                    if (!SeeYa.playing()) SeeYa.play();
+                }
+                else {
+                    SeeYa.pause();
                 }
                 if (n_distance > 0) {
                     avg_distance = sum_distance / n_distance
@@ -953,7 +952,7 @@
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens) {
                                 collision_object.visible = false;
-                                SeeYa.pause();
+                                //SeeYa.pause();
                                 Sterben.play();
                                 ++score;
                                 if (!mymagazine.visible) {
@@ -1232,7 +1231,6 @@
                     }
                     const title_d = 3000;
                     let title_pct = (Date.now() - title_t0) * 100 / title_d;
-                    console.log(title_pct);
                     if (title_pct >= 100) {
                         textH.style.visibility = 'hidden';
                         title_t0 = 0;
