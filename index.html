@@ -50,14 +50,14 @@
         window.onload = function () {
             var textH = document.createElement('div');
             textH.style.position = 'absolute';
-            textH.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
-            textH.style.left = window.innerWidth / 4 + 'px';
+            //textH.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+            textH.style.left = 0 + 'px';
             textH.style.top = window.innerHeight / 4 + 'px';
-            textH.style.width = window.innerWidth / 2;
+            textH.style.width = window.innerWidth;
             textH.style.height = window.innerHeight / 2;
             textH.style.fontSize = "64px";
             textH.style.backgroundColor = "white";
-            textH.innerHTML = "<h3 align=center> ZOMB!ES </h3><h3 align=center> Press ENTER to start</h3>";
+            textH.innerHTML = "<h3> ZOMB!ES </h3><h3> Press ENTER to start</h3>";
             document.body.appendChild(textH);
 
             var text2 = document.createElement('div');
@@ -68,7 +68,7 @@
             text2.style.width = 100;
             text2.style.height = 200;
             text2.style.fontSize = "12px";
-            text2.style.backgroundColor = "white";
+            text2.style.backgroundColor = "#00000000";
             text2.innerHTML = "-";
             document.body.appendChild(text2);
             var score = 0;
@@ -725,8 +725,8 @@
             animate();
 
             function render_game() {
-                text2.innerHTML = "<h1>Level "
-                    + (mylevel + 1) + '<br>Title: "'
+                text2.innerHTML = "<h1>#"
+                    + (mylevel + 1) + ' "'
                     + lab[mylevel].title + '"'
                     + "<br>"
                     + "Score: " + score
@@ -1181,7 +1181,7 @@
                         case 13:
                             ZombieMoaning.play();
                             init_game();
-                            set_status(st_play);
+                            set_status(st_title);
                             break;
                     }
                     eventq = 0;
@@ -1217,7 +1217,6 @@
                             if (mylevel < lab.length) {
                                 init_game();
                                 set_status(st_title);
-                                title_t0 = Date.now();
                             }
                             else {
                                 set_status(st_gameover);
@@ -1227,11 +1226,20 @@
                     }
                 }
                 else if (status == st_title) {
+                    if (title_t0 == 0) {
+                        title_t0 = Date.now();
+                    }
                     const title_d = 3000;
                     let title_pct = (Date.now() - title_t0) * 100 / title_d;
                     console.log(title_pct);
                     if (title_pct >= 100) {
+                        textH.style.visibility = 'hidden';
+                        title_t0 = 0;
                         set_status(st_play);
+                    } else {
+                        textH.style.visibility = 'visible';
+                        textH.style.backgroundColor = '#000020' + parseInt((100 - title_pct) * 0xff / 100).toString(16).padStart(2, '0')
+                        textH.innerHTML = "<h3 align=center> " + lab[mylevel].title + "";
                     }
                     process_ego();
                     render_game();
