@@ -154,26 +154,16 @@
             const n_grid = 30;
             const sz_grid = 5;
             // create the lawn
-            var mylawn = new THREE.Mesh(new THREE.BoxGeometry(sz_grid, sz_grid, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
+            var mylawn = new THREE.Mesh(new THREE.BoxGeometry(1, 1, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
             mylawn.position.set(0, 0, -.1);
             scene.add(mylawn);
             // create the ceiling
-            var myceiling = new THREE.Mesh(new THREE.BoxGeometry(n_grid * sz_grid, n_grid * sz_grid, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
+            var myceiling = new THREE.Mesh(new THREE.BoxGeometry(1, 1, .2), new THREE.MeshStandardMaterial({ map: ceilingtexture }));
             myceiling.position.set(0, 0, hecke_hoehe + .1);
             scene.add(myceiling);
-            // create the grid
-            /*
-            var grid = Array();
-            for (i = -n_grid; i < n_grid; ++i) {
-                for (j = -n_grid; j <= n_grid; ++j) {
-                    var org = new THREE.Mesh(new THREE.BoxGeometry(.2, .2, .05), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
-                    //var org = new THREE.PointLight(0xffffff, .4);
-                    org.position.set((i + 1) * sz_grid, j * sz_grid, .2);
-                    scene.add(org);
-                    grid.push(org);
-                }
-            }
-            */
+
+
+
 
             function set_status(s) {
                 console.log("status=" + s);
@@ -259,8 +249,8 @@
             var mat_wall = new THREE.MeshStandardMaterial({ map: walltexture });
             const doors_height_closed = hecke_hoehe / 2;
             const doors_height_open = 3 * hecke_hoehe / 2;
-            const orglab_x = 4;
-            const orglab_y = -7;
+            var orglab_x = 0;//4;
+            var orglab_y = 0;//-7;
             function build_lab() {
                 for (i of labwalls) {
                     scene.remove(i);
@@ -289,7 +279,6 @@
                 aliens_angle = [];
                 szlab_x = lab[mylevel].matrix[0].length / 4;
                 szlab_y = lab[mylevel].matrix.length / 2;
-                mylawn.scale.set(szlab_x + 2, szlab_y + 1, 1);
                 mytransporter.visible = false;
                 for (i = 0; i < szlab_x; ++i) {
                     for (j = 0; j < szlab_y; ++j) {
@@ -450,6 +439,17 @@
                             labarmors.push(tmp);
                         }
                     }
+                }
+                {
+                    // lawn and ceiling
+                    let b1 = new THREE.Box3();
+                    for (i of labwalls) {
+                        b1.expandByObject(i);
+                    }
+                    mylawn.scale.set(2 * sz_grid + b1.getSize().x, 2 * sz_grid + b1.getSize().y, 1);
+                    mylawn.position.set(b1.getCenter().x, b1.getCenter().y, -.1);
+                    myceiling.scale.set(1 * sz_grid + b1.getSize().x, 1 * sz_grid + b1.getSize().y, 1);
+                    myceiling.position.set(b1.getCenter().x, b1.getCenter().y, hecke_hoehe + .1);
                 }
             }
 
