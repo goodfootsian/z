@@ -31,6 +31,7 @@
         // Zombies können nur einen 160 grad Winkel überblicken
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
+        // level 
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
             eventq = event.keyCode;
@@ -525,6 +526,7 @@
             }
 
             // load audio
+            var Level = new Howl({ src: ['level.mp3'] });
             var HTschioo = new Howl({ src: ['Tschioo.mp3'] });
             var HAua = new Howl({ src: ['Aua.mp3'] });
             var HAah = new Howl({ src: ['Aah.mp3'] });
@@ -1188,6 +1190,9 @@
                     mytransporter.scale.set(s, s, s);
                 }
                 if (status == st_insertcoin) {
+                    textH.style.visibility = 'visible';
+                    textH.style.backgroundColor = '#000020' + parseInt((Math.sin(Date.now()/1000) + 1) / 2 * 0xff).toString(16).padStart(2, '0')
+                    textH.innerHTML = "<h3 align=center> ZOMB!ES </h3><h3 align=center> Press ENTER to start</h3>";
                     switch (eventq) {
                         case 13:
                             ZombieMoaning.play();
@@ -1241,6 +1246,7 @@
                 else if (status == st_title) {
                     if (title_t0 == 0) {
                         title_t0 = Date.now();
+                        Level.play();
                     }
                     const title_d = 3000;
                     let title_pct = (Date.now() - title_t0) * 100 / title_d;
