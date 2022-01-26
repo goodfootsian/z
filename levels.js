@@ -4,6 +4,9 @@ images['1'] = 'talara.png'
 images['2'] = 'cov-19.png'
 images['3'] = 'Gibson.png'
 images['4'] = 'Squier.png'
+images['5'] = 'campfire.png'
+images['6'] = 'code.png'
+images['7'] = 'wm.png'
 
 class lab_class {
     constructor() {
@@ -25,11 +28,11 @@ thislab.matrix.push("+   +                               |   +");
 thislab.matrix.push("+   +                               +   +");
 thislab.matrix.push("+   D                                   +");
 thislab.matrix.push("+   +                                   +");
-thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   |                                   p6");
 thislab.matrix.push("+   +                                   +");
-thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   D                                   p5");
 thislab.matrix.push("+   +                                   +");
-thislab.matrix.push("+   D                                   +");
+thislab.matrix.push("+   |                                   p7");
 thislab.matrix.push("+   +                                   +");
 thislab.matrix.push("+   D                                   +");
 thislab.matrix.push("+   +                               +   +");
@@ -43,7 +46,7 @@ lab.push(thislab);
 thislab.title = "Ruban Virus Lab"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+");
 thislab.matrix.push("+           w                   w   +");
-thislab.matrix.push("+   +-w-+-w-+   +---+---+---+   +   +");
+thislab.matrix.push("+   +-w-+-w-+   +-w-+-w-+-w-+   +   +");
 thislab.matrix.push("+   w z2      z2w H   T   H w z2w   +");
 thislab.matrix.push("+   +   +-w-+-w-+           +-w-+   +");
 thislab.matrix.push("+   w   w                           +");
