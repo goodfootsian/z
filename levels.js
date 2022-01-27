@@ -43,6 +43,19 @@ thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 //
 var thislab = new lab_class;
 lab.push(thislab);
+thislab.title = "Cubus"
+thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+---+---+---+");
+thislab.matrix.push("+ E     | L       M                               H  ");
+thislab.matrix.push("+       +       +-w-+-w-+  -+-w-+                   +");
+thislab.matrix.push("+       |       w     Z3w   w Z2w                    ");
+thislab.matrix.push("+       +       +       +   +   +                   +");
+thislab.matrix.push("+       |       w       w   w   w                    ");
+thislab.matrix.push("+       +       +-w-+-w-+  -+-w-+                   +");
+thislab.matrix.push("+                                                 T +");
+thislab.matrix.push("+---------------------------------------------------+");
+//
+var thislab = new lab_class;
+lab.push(thislab);
 thislab.title = "Ruban Virus Lab"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+");
 thislab.matrix.push("+           w                   w   +");
