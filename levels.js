@@ -7,6 +7,9 @@ images['4'] = 'Squier.png'
 images['5'] = 'campfire.png'
 images['6'] = 'code.png'
 images['7'] = 'wm.png'
+images['8'] = 'pizza.png'
+images['9'] = 'tadjine.png'
+images['a'] = 'beeftarar.png'
 
 class lab_class {
     constructor() {
@@ -58,11 +61,11 @@ var thislab = new lab_class;
 lab.push(thislab);
 thislab.title = "Ruban Virus Lab"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+");
-thislab.matrix.push("+           w                   w   +");
+thislab.matrix.push("+         Z5w         A         w   +");
 thislab.matrix.push("+   +-w-+-w-+   +-w-+-w-+-w-+   +   +");
 thislab.matrix.push("+   w z2      z2w H   T   H w z2w   +");
 thislab.matrix.push("+   +   +-w-+-w-+           +-w-+   +");
-thislab.matrix.push("+   w   w                           +");
+thislab.matrix.push("+   w   w                     A     +");
 thislab.matrix.push("+   +   +-w-+-w-+   +-w-+   +-w-+   +");
 thislab.matrix.push("+   w z2      z2w   w z2w   w z2w   +");
 thislab.matrix.push("+   +   +-w-+-w-+   +-w-+   +-w-+   +");
@@ -94,7 +97,7 @@ lab.push(thislab);
 thislab.title = "Marie Curie 8"
 thislab.matrix.push("                        +-W-+-W-+                            ");
 thislab.matrix.push("                        W H   H W                         T  ");
-thislab.matrix.push("+---+---+---+---+---+---+       +---+---+---+---+---+        ");
+thislab.matrix.push("+---+-P8+-Pa+-P9+---+---+       +---+---+---+---+---+        ");
 thislab.matrix.push("| H   H   H   H   H |     H   H                     D        ");
 thislab.matrix.push("+                   +                               +        ");
 thislab.matrix.push("W                   D     H   H                   A W        ");
