@@ -31,6 +31,17 @@
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
         // level 
+        // smartphone control
+        // ENTER button
+        // 
+        // swipe = turn left/right
+        // = shoot
+        // = open
+        //     ^     move fwd                                 ^
+        //  <     >  strafe left/right      
+        //     v     move backw                               v
+        //
+
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
             eventq = event.keyCode;
@@ -45,6 +56,7 @@
             pressedKeys[e.keyCode] = true;
             pressedKeys[18] = false; // disable alt key
         }
+
 
         const pi = 3.14159;
         window.onload = function () {
@@ -139,6 +151,36 @@
             scene.add(myego);
             var myego_sphere = new THREE.Mesh(new THREE.SphereGeometry(.5), new THREE.MeshBasicMaterial({ color: 0x000055 }));
             scene.add(myego_sphere);
+            // turn ego using the mouse
+            var mouseX0;
+            const ms_none = 0;
+            const ms_down = 1;
+            var mouseStatus = ms_none;
+            var mouseDeltaAngle = 0;
+            var mouseAngle0 = 0;
+            window.onmousedown = function (e) {
+                //alert("x=" + e.clientX + ", y=" + e.clientY);
+                mouseX0 = e.clientX;
+                mouseStatus = ms_down;
+                mouseAngle0 = myego_angle;
+                mouseDeltaAngle = 0;
+            }
+            window.onmouseup = function (e) {
+                mouseStatus = ms_none;
+            }
+            window.onmouseout = function (e) {
+                mouseStatus = ms_none;
+            }
+            window.onmousemove = function (e) {
+                switch (mouseStatus) {
+                    case ms_none:
+                        break;
+                    case ms_down:
+                        mouseDeltaAngle = (2 * Math.PI * (e.clientX - mouseX0) / window.innerWidth);
+                        //console.log(mouseDeltaAngle);
+                        break;
+                }
+            }
             // textures
             var ceilingtexture = new THREE.TextureLoader().load('Ceiling.png');
             ceilingtexture.wrapS = THREE.RepeatWrapping;
@@ -1064,21 +1106,27 @@
                 var backup_position = myego.position.clone();
                 var backup_rotation = myego.rotation.clone();
                 var backup_angle = myego_angle;
-                if (pressedKeys[37] && !pressedKeys[18]) {
-                    //left
-                    v_omegaleft += d_omega0;
-                    myego_angle += v_omegaleft;
+                if (mouseStatus == ms_down) {
+                    myego_angle = mouseAngle0 + mouseDeltaAngle;
                 }
                 else {
-                    v_omegaleft = 0;
-                }
-                if (pressedKeys[39] && !pressedKeys[18]) {
-                    //right
-                    v_omegaright += d_omega0;
-                    myego_angle -= v_omegaright;
-                }
-                else {
-                    v_omegaright = 0;
+
+                    if (pressedKeys[37] && !pressedKeys[18]) {
+                        //left
+                        v_omegaleft += d_omega0;
+                        myego_angle += v_omegaleft;
+                    }
+                    else {
+                        v_omegaleft = 0;
+                    }
+                    if (pressedKeys[39] && !pressedKeys[18]) {
+                        //right
+                        v_omegaright += d_omega0;
+                        myego_angle -= v_omegaright;
+                    }
+                    else {
+                        v_omegaright = 0;
+                    }
                 }
                 calc_cartesian(myego_direction, myego_angle)
                 myego.rotation.z = pi / 2 + myego_angle;
