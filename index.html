@@ -83,7 +83,7 @@
             text2.style.backgroundColor = "#00000000";
             text2.innerHTML = "";
             document.body.appendChild(text2);
-
+            // ENTER 
             var enterButton = document.createElement('button');
             enterButton.style.position = "absolute";
             enterButton.style.fontSize = "64px";
@@ -94,8 +94,92 @@
             enterButton.onclick = function () {
                 eventq = 13;
             }
-            enterButton.style.visibility = "hidden";
-            enterButton.style.visibility = "visible";
+            // forward
+            var fwdButton = document.createElement('button');
+            fwdButton.style.position = "absolute";
+            fwdButton.style.fontSize = "64px";
+            fwdButton.innerHTML = "^";
+            fwdButton.style.left = parseInt((window.innerWidth / 4) / 2) + 'px';
+            fwdButton.style.top = parseInt(window.innerHeight * 24 / 32) + 'px';
+            document.body.appendChild(fwdButton);
+            fwdButton.ontouchstart = function () {
+                pressedKeys[38] = true;
+            }
+            fwdButton.ontouchend = function () {
+                pressedKeys[38] = false;
+            }
+            // backward
+            var bwdButton = document.createElement('button');
+            bwdButton.style.position = "absolute";
+            bwdButton.style.fontSize = "64px";
+            bwdButton.innerHTML = "v";
+            bwdButton.style.left = parseInt((window.innerWidth / 4) / 2) + 'px';
+            bwdButton.style.top = parseInt(window.innerHeight * 26 / 32) + 'px';
+            document.body.appendChild(bwdButton);
+            bwdButton.ontouchstart = function () {
+                pressedKeys[40] = true;
+            }
+            bwdButton.ontouchend = function () {
+                pressedKeys[40] = false;
+            }
+            // left
+            var leftButton = document.createElement('button');
+            leftButton.style.position = "absolute";
+            leftButton.style.fontSize = "64px";
+            leftButton.innerHTML = "<";
+            leftButton.style.left = parseInt(window.innerWidth * 2 / 32) + 'px';
+            leftButton.style.top = parseInt(window.innerHeight * 25 / 32) + 'px';
+            document.body.appendChild(leftButton);
+            leftButton.ontouchstart = function () {
+                pressedKeys[188] = true;
+            }
+            leftButton.ontouchend = function () {
+                pressedKeys[188] = false;
+            }
+            // right
+            var rightButton = document.createElement('button');
+            rightButton.style.position = "absolute";
+            rightButton.style.fontSize = "64px";
+            rightButton.innerHTML = ">";
+            rightButton.style.left = parseInt(window.innerWidth * 6 / 32) + 'px';
+            rightButton.style.top = parseInt(window.innerHeight * 25 / 32) + 'px';
+            document.body.appendChild(rightButton);
+            rightButton.ontouchstart = function () {
+                pressedKeys[190] = true;
+            }
+            rightButton.ontouchend = function () {
+                pressedKeys[190] = false;
+            }
+            // shoot
+            var shootButton = document.createElement('button');
+            shootButton.style.position = "absolute";
+            shootButton.style.fontSize = "64px";
+            shootButton.innerHTML = "SHOOT";
+            shootButton.style.left = parseInt(window.innerWidth * 9 / 32) + 'px';
+            shootButton.style.top = parseInt(window.innerHeight * 25 / 32) + 'px';
+            document.body.appendChild(shootButton);
+            shootButton.ontouchstart = function () {
+                pressedKeys[17] = true;
+            }
+            shootButton.ontouchend = function () {
+                pressedKeys[17] = false;
+            }
+            // open
+            var openButton = document.createElement('button');
+            openButton.style.position = "absolute";
+            openButton.style.fontSize = "64px";
+            openButton.innerHTML = "OPEN";
+            openButton.style.left = parseInt(window.innerWidth * 18 / 32) + 'px';
+            openButton.style.top = parseInt(window.innerHeight * 25 / 32) + 'px';
+            document.body.appendChild(openButton);
+            openButton.ontouchstart = function () {
+                pressedKeys[17] = true;
+            }
+            openButton.ontouchend = function () {
+                pressedKeys[17] = false;
+            }
+
+
 
             var score = 0;
 
