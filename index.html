@@ -69,11 +69,23 @@
             text2.style.fontSize = "12px";
             text2.style.color = "#aaaaaa";
             text2.style.backgroundColor = "#00000000";
-            text2.innerHTML = "-";
+            text2.innerHTML = "";
             document.body.appendChild(text2);
 
-            var score = 0;
+            var enterButton = document.createElement('button');
+            enterButton.style.position = "absolute";
+            enterButton.style.fontSize = "64px";
+            enterButton.innerHTML = "ENTER";
+            enterButton.style.left = parseInt((window.innerWidth - enterButton.offsetWidth) / 2) + 'px';
+            enterButton.style.top = parseInt(window.innerHeight * 2 / 3) + 'px';
+            document.body.appendChild(enterButton);
+            enterButton.onclick = function () {
+                eventq = 13;
+            }
+            enterButton.style.visibility = "hidden";
+            enterButton.style.visibility = "visible";
 
+            var score = 0;
 
             // Create the renderer and add it to the page's body element
             var renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -1194,6 +1206,8 @@
                     textH.style.visibility = 'visible';
                     textH.style.backgroundColor = '#000020' + parseInt((Math.sin(Date.now()/1000) + 1) / 2 * 0xff).toString(16).padStart(2, '0')
                     textH.innerHTML = "<h3 align=center> ZOMB!ES </h3><h3 align=center> Press ENTER to start</h3>";
+                    enterButton.style.left = parseInt((window.innerWidth - enterButton.offsetWidth) / 2) + 'px';
+                    enterButton.style.visibility = "visible";
                     switch (eventq) {
                         case 13:
                             ZombieMoaning.play();
@@ -1208,6 +1222,7 @@
                     textH.style.visibility = 'visible';
                     textH.style.backgroundColor = 'transparent';
                     textH.innerHTML = "<h3 align=center> GAME OVER </h3><h3 align=center> Press ENTER to start</h3>";
+                    enterButton.style.visibility = "visible";
                     process_aliens();
                     render_game();
                     switch (eventq) {
@@ -1224,6 +1239,7 @@
                     eventq = 0;
                 }
                 else if (status == st_play) {
+                    enterButton.style.visibility = "hidden";
                     textH.style.visibility = 'hidden';
                     process_aliens();
                     process_bullets();
@@ -1256,6 +1272,7 @@
                         title_t0 = 0;
                         set_status(st_play);
                     } else {
+                        enterButton.style.visibility = "hidden";
                         textH.style.visibility = 'visible';
                         textH.style.backgroundColor = '#000020' + parseInt((100 - title_pct) * 0xff / 100).toString(16).padStart(2, '0')
                         textH.innerHTML = "<h3 align=center> " + lab[mylevel].title + "";
