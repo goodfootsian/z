@@ -30,7 +30,7 @@
         // Zombies können nur einen 160 grad Winkel überblicken
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
-        // level 
+        // speed in units/ms for a) aliens b) ego move
         // smartphone control
         // ENTER button
         // 
@@ -180,6 +180,26 @@
                         //console.log(mouseDeltaAngle);
                         break;
                 }
+            }
+            window.ontouchstart = function (e) {
+                mouseX0 = e.changedTouches[0].clientX;
+                mouseStatus = ms_down;
+                mouseAngle0 = myego_angle;
+                mouseDeltaAngle = 0;
+                //alert("touchstart " + mouseX0);
+            }
+            window.ontouchmove = function (e) {
+                switch (mouseStatus) {
+                    case ms_none:
+                        break;
+                    case ms_down:
+                        mouseDeltaAngle = (2 * Math.PI * (e.changedTouches[0].clientX - mouseX0) / window.innerWidth);
+                        //console.log(mouseDeltaAngle);
+                        break;
+                }
+            }
+            window.ontouchend = function (e) {
+                mouseStatus = ms_none;
             }
             // textures
             var ceilingtexture = new THREE.TextureLoader().load('Ceiling.png');
