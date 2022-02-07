@@ -27,7 +27,7 @@ thislab.title = "The Stage"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 thislab.matrix.push("+                                 H | T +");
 thislab.matrix.push("+   +---+---+-D-+---+---+-D-+---+---+   +");
-thislab.matrix.push("+   +                               |   +");
+thislab.matrix.push("+   +                             Z2|   +");
 thislab.matrix.push("+   +                               +   +");
 thislab.matrix.push("+   D                                   +");
 thislab.matrix.push("+   +                                   +");
@@ -41,7 +41,7 @@ thislab.matrix.push("+   D                                   +");
 thislab.matrix.push("+   +                               +   +");
 thislab.matrix.push("+   +                               |   +");
 thislab.matrix.push("+   +---+---+ D +---+---+ D +---+---+   +");
-thislab.matrix.push("+ E   L                       Z2  M | A +");
+thislab.matrix.push("+ E   L                           M | A +");
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 //
 var thislab = new lab_class;

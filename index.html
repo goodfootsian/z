@@ -928,9 +928,10 @@
 
             var debugcnt = 0;
             var damage_onhold = 0;
+            var alien_speed = 4; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
+            var alien_attack_speed = 6; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
             function process_aliens() {
                 // aliens movements
-                const mv_range = .1;
                 let sum_distance = 0;
                 let n_distance = 0;
                 let direct_view_flag = false;
@@ -951,22 +952,20 @@
                         calc_cartesian(alien_direction, aliens_angle[i]);
                         if (dw > dego) {
                             // Direct view contact to ego
-                            //console.log("dw=" + dw + ", dego=" + dego);
                             direct_view_flag = true;
-                            aliens[i].position.x += dir2ego.x / 20 + (Math.random() - .5) / 10;
-                            aliens[i].position.y += dir2ego.y / 20 + (Math.random() - .5) / 10;
+                            aliens[i].position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x + (Math.random() - .5) / 10;
+                            aliens[i].position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y + (Math.random() - .5) / 10;
                         } else {
                             // Normal movement
                             //let tmp = get_distance_to_wall_0(aliens[i].position, alien_direction);
                             //console.log("distance to next wall=" + tmp);
-                            aliens[i].position.x += mv_range * alien_direction.x;
-                            aliens[i].position.y += mv_range * alien_direction.y;
+                            aliens[i].position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
+                            aliens[i].position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
                         }
                         if (thereis_collision(aliens[i], i, true, false)) {
                             // restore backup
                             aliens[i].position.set(backup_position.x, backup_position.y, backup_position.z)
                             aliens_angle[i] = backup_angle;
-                            //console.log("collision! reason=" + collision_reason + " stride=" + debugcnt * mv_range);
                             // choose a new direction
                             {
                                 let improved_point = aliens[i].position.clone();
@@ -1348,7 +1347,18 @@
             }
 
             var title_t0 = 0;
+            var time_last = 0;
+            var time_elapsed = 0;
             function animate() {
+                let date_now = Date.now();
+                if (time_last == 0) {
+                    time_last = date_now
+                    time_elapsed = 0;
+                }
+                else {
+                    time_elapsed = date_now - time_last;
+                    time_last = date_now;
+                }
                 time_cnt++;
                 {
                     let s = 1 + (Math.sin(time_cnt / 50) + Math.cos(time_cnt / 60)) / 20;
