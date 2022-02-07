@@ -173,10 +173,10 @@
             openButton.style.top = parseInt(window.innerHeight * 25 / 32) + 'px';
             document.body.appendChild(openButton);
             openButton.ontouchstart = function () {
-                pressedKeys[17] = true;
+                pressedKeys[32] = true;
             }
             openButton.ontouchend = function () {
-                pressedKeys[17] = false;
+                pressedKeys[32] = false;
             }
 
 
@@ -671,16 +671,6 @@
                 myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, 1.5);
                 mymagazine.visible = true;
                 mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, .5);
-                /*
-                for (i = 0; i < n_aliens; ++i) {
-                    if (i < lab_n_aliens) {
-                        aliens[i].visible = true;
-                    } else {
-                        aliens[i].visible = false;
-                    }
-                    aliens[i].position.set(aliens_x0 * sz_grid + i % 3 - 1, aliens_y0 * sz_grid + parseInt(i / 3) - 1, 1);
-                }
-                 */
                 Invaders.play();
                 render_game();
             }
@@ -1362,6 +1352,7 @@
                     time_elapsed = date_now - time_last;
                     time_last = date_now;
                 }
+                //console.log("time_elapsed=" + time_elapsed);
                 time_cnt++;
                 {
                     let s = 1 + (Math.sin(time_cnt / 50) + Math.cos(time_cnt / 60)) / 20;
@@ -1463,8 +1454,6 @@
                 // Keep the animation going
                 requestAnimationFrame(animate);
             }
-
-
         }
 
     </script>
