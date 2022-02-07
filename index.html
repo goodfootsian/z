@@ -1101,7 +1101,7 @@
             //
             function process_bullets() {
                 // bullet movement
-                const bulletspeed = 0.6;
+                const bulletspeed = 30;
                 let touch = false;
                 for (i of bullet) {
                     if (i.status == bs_none) {
@@ -1112,7 +1112,7 @@
                         touch = true;
                         i.object.visible = true;
                         i.fireball.visible = true;
-                        i.object.position.set(i.object.position.x + bulletspeed * Math.cos(i.angle), i.object.position.y + bulletspeed * Math.sin(i.angle), i.object.position.z);
+                        i.object.position.set(i.object.position.x + bulletspeed * time_elapsed / 1000 * Math.cos(i.angle), i.object.position.y + bulletspeed * time_elapsed / 1000 * Math.sin(i.angle), i.object.position.z);
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
                         if (thereis_collision(i.object, -1, false, false)) {
