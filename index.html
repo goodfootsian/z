@@ -929,8 +929,8 @@
 
             var debugcnt = 0;
             var damage_onhold = 0;
-            var alien_speed = 4; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
-            var alien_attack_speed = 6; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
+            const alien_speed = 4; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
+            const alien_attack_speed = 6; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
             function process_aliens() {
                 // aliens movements
                 let sum_distance = 0;
@@ -1166,9 +1166,6 @@
             var v_omegaleft = 0;
             var v_omegaright = 0;
 
-            const d_egospeed0 = .01;
-            var egospeed = 0;
-
             // calculate params for camera
             const camtoegodistance0 = 0;
             var camtoegodistance = camtoegodistance0;
@@ -1198,13 +1195,17 @@
                 //console.log("CP= (" + CP.x + ", " + CP.y + ", " + CP.z + ", " + ")");
                 //console.log("up= (" + up.x + ", " + up.y + ", " + up.z + ", " + ")");
             }
-
+            //
             function get_abullet() {
                 for (i of bullet) {
                     if (i.status == bs_none) return i;
                 }
                 return undefined;
             }
+            var egospeed = 0;
+            const ego_maxspeed = 20; // unit is m/sec ...1m is 1 unit in THREE.js coordinate system
+            const ego_acceleration = 15; // unit is m/sec^2 ...1m is 1 unit in THREE.js coordinate system
+            //
             function process_ego() {
                 // rotate ego
                 var backup_position = myego.position.clone();
@@ -1238,10 +1239,10 @@
                     myego.rotation.z = backup_rotation.z;
                     //myego_angle = backup_angle;
                 }
+                // update egospeed
                 if (pressedKeys[38] || pressedKeys[40] || pressedKeys[188] || pressedKeys[190]) {
-                    egospeed += d_egospeed0;
-                    const max_egospeed = .5;
-                    if (egospeed > max_egospeed) egospeed = max_egospeed;
+                    egospeed += ego_acceleration * time_elapsed / 1000;
+                    if (egospeed > ego_maxspeed) egospeed = ego_maxspeed;
                 }
                 else {
                     egospeed = 0;
@@ -1250,19 +1251,19 @@
                 var backup_position = myego.position.clone();
                 if (pressedKeys[38]) {
                     //up
-                    myego.position.x += egospeed * myego_direction.x;
+                    myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.x;
                 }
                 if (pressedKeys[40]) {
                     //down
-                    myego.position.x -= egospeed * myego_direction.x;
+                    myego.position.x -= egospeed * time_elapsed / 1000 * myego_direction.x;
                 }
                 if (pressedKeys[188] || (pressedKeys[37] && pressedKeys[18])) {
                     // strafe left
-                    myego.position.x -= egospeed * myego_direction.y;
+                    myego.position.x -= egospeed * time_elapsed / 1000 * myego_direction.y;
                 }
                 if (pressedKeys[190] || (pressedKeys[39] && pressedKeys[18])) {
                     // strafe right
-                    myego.position.x += egospeed * myego_direction.y;
+                    myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.y;
                 }
                 if (thereis_collision(myego_sphere, -1, false, true)) {
                     myego.position.set(backup_position.x, backup_position.y, backup_position.z)
@@ -1271,19 +1272,19 @@
                 var backup_position = myego.position.clone();
                 if (pressedKeys[38]) {
                     //up
-                    myego.position.y += egospeed * myego_direction.y;
+                    myego.position.y += egospeed * time_elapsed / 1000 * myego_direction.y;
                 }
                 if (pressedKeys[40]) {
                     //down
-                    myego.position.y -= egospeed * myego_direction.y;
+                    myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.y;
                 }
                 if (pressedKeys[188] || (pressedKeys[37] && pressedKeys[18])) {
                     // strafe left
-                    myego.position.y += egospeed * myego_direction.x;
+                    myego.position.y += egospeed * time_elapsed / 1000 * myego_direction.x;
                 }
                 if (pressedKeys[190] || (pressedKeys[39] && pressedKeys[18])) {
                     // strafe right
-                    myego.position.y -= egospeed * myego_direction.x;
+                    myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.x;
                 }
                 if (thereis_collision(myego_sphere, -1, false, true)) {
                     myego.position.set(backup_position.x, backup_position.y, backup_position.z)
