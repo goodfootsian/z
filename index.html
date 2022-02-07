@@ -321,7 +321,8 @@
             scene.add(myceiling);
 
 
-
+            var touchDevice = ('ontouchstart' in document.documentElement);
+            console.log("touchDevice=" + touchDevice);
 
             function set_status(s) {
                 console.log("status=" + s);
@@ -1368,8 +1369,18 @@
                     textH.style.visibility = 'visible';
                     textH.style.backgroundColor = '#000020' + parseInt((Math.sin(Date.now()/1000) + 1) / 2 * 0xff).toString(16).padStart(2, '0')
                     textH.innerHTML = "<h3 align=center> ZOMB!ES </h3><h3 align=center> Press ENTER to start</h3>";
-                    enterButton.style.left = parseInt((window.innerWidth - enterButton.offsetWidth) / 2) + 'px';
-                    enterButton.style.visibility = "visible";
+                    if (touchDevice) {
+                        enterButton.style.left = parseInt((window.innerWidth - enterButton.offsetWidth) / 2) + 'px';
+                        enterButton.style.visibility = "visible";
+                    } else {
+                        enterButton.style.visibility = "hidden";
+                        fwdButton.style.visibility = "hidden";
+                        bwdButton.style.visibility = "hidden";
+                        leftButton.style.visibility = "hidden";
+                        rightButton.style.visibility = "hidden";
+                        shootButton.style.visibility = "hidden";
+                        openButton.style.visibility = "hidden";
+                    }
                     switch (eventq) {
                         case 13:
                             ZombieMoaning.play();
@@ -1384,7 +1395,9 @@
                     textH.style.visibility = 'visible';
                     textH.style.backgroundColor = 'transparent';
                     textH.innerHTML = "<h3 align=center> GAME OVER </h3><h3 align=center> Press ENTER to start</h3>";
-                    enterButton.style.visibility = "visible";
+                    if (touchDevice) {
+                        enterButton.style.visibility = "visible";
+                    }
                     process_aliens();
                     render_game();
                     switch (eventq) {
@@ -1401,7 +1414,9 @@
                     eventq = 0;
                 }
                 else if (status == st_play) {
-                    enterButton.style.visibility = "hidden";
+                    if (touchDevice) {
+                        enterButton.style.visibility = "hidden";
+                    }
                     textH.style.visibility = 'hidden';
                     process_aliens();
                     process_bullets();
