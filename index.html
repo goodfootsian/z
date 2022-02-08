@@ -58,7 +58,6 @@
         }
 
 
-        const pi = 3.14159;
         window.onload = function () {
             var textH = document.createElement('div');
             textH.style.position = 'absolute';
@@ -218,6 +217,7 @@
             var mymagazine_x0 = 0;
             var mymagazine_y0 = 0;
             var mymagazine = new THREE.Mesh(new THREE.BoxGeometry(.4, .4, .4), new THREE.MeshStandardMaterial({ color: 0x006600 }));
+            mymagazine.name = "magazine";
             scene.add(mymagazine);
             // create firelight
             var firelight = new THREE.PointLight(0xffff00, .4);
@@ -234,6 +234,7 @@
             var myego = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 1, 15), new THREE.MeshStandardMaterial({ color: 0x777777 }));
             scene.add(myego);
             var myego_sphere = new THREE.Mesh(new THREE.SphereGeometry(.5), new THREE.MeshBasicMaterial({ color: 0x000055 }));
+            myego_sphere.name = "door";
             scene.add(myego_sphere);
             // turn ego using the mouse
             var mouseX0;
@@ -290,12 +291,12 @@
             ceilingtexture.wrapS = THREE.RepeatWrapping;
             ceilingtexture.wrapT = THREE.RepeatWrapping;
             var alientexture = new THREE.TextureLoader().load('alien.png');
-            alientexture.rotation = pi / 2;
+            alientexture.rotation = Math.PI / 2;
             alientexture.center = new THREE.Vector2(0.5, 0.5); // center of texture.
             var doortexture = new THREE.TextureLoader().load('dsDoor3.jpg');
             var doortexture2 = new THREE.TextureLoader().load('dsDoor3.jpg');
             var armortexture = new THREE.TextureLoader().load('Armor.png');
-            doortexture2.rotation = -pi / 2;
+            doortexture2.rotation = -Math.PI / 2;
             doortexture2.center = new THREE.Vector2(0.5, 0.5); // center of texture.
             var walltexture = new THREE.TextureLoader().load('BetonWall.png');
             //var walltexture = new THREE.TextureLoader().load('WhiteWall.png');
@@ -488,13 +489,14 @@
                         }
                         else if ('Dd'.includes(whats_left(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_vert, mat_doors_vert);
+                            tmp.name = "door";
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, doors_height_closed);
                             scene.add(tmp);
                             labdoors.push(tmp);
                         }
                         else if ('Ww'.includes(whats_left(i, j))) {
                             var tmp = new THREE.Mesh(geo_doors_vert, mat_windows);
-                            tmp.name = 'window';
+                            tmp.name = "window";
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, doors_height_closed);
                             scene.add(tmp);
                             labwalls.push(tmp);
@@ -540,6 +542,7 @@
                         }
                         else if ('Dd'.includes(chup)) {
                             var tmp = new THREE.Mesh(geo_doors_horz, mat_doors_horz);
+                            tmp.name = "door";
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, doors_height_closed);
                             scene.add(tmp);
                             labdoors.push(tmp);
@@ -586,12 +589,14 @@
                         }
                         else if (getcontent(i, j) == 'T') {
                             mytransporter.visible = true;
+                            mytransporter.name = "transporter";
                             mytransporter.position.set((orglab_x - i) * sz_grid, (orglab_y + j) * sz_grid, 1);
                         }
                         else if (getcontent(i, j) == 'H') {
                             var geometry = new THREE.SphereGeometry(.3, 64, 32)
                             geometry.applyMatrix(new THREE.Matrix4().makeScale(1, 1, 2));
                             var tmp = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x3333ff, }));
+                            tmp.name = "health";
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j) * sz_grid, 1);
                             scene.add(tmp);
                             labhealthdoses.push(tmp);
@@ -600,9 +605,10 @@
                             var geometry = new THREE.SphereGeometry(.3, 64, 32)
                             geometry.applyMatrix(new THREE.Matrix4().makeScale(.5, 2, 2));
                             var tmp = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: armortexture, }));
+                            tmp.name = "armor";
                             tmp.castShadow = true; // default is false
                             tmp.receiveShadow = false; // default is false                     
-                            tmp.rotation.z = pi / 4;
+                            tmp.rotation.z = Math.PI / 4;
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j) * sz_grid, 1);
                             scene.add(tmp);
                             labarmors.push(tmp);
@@ -666,7 +672,7 @@
                 build_lab();
                 myego.rotation.x = 0;
                 myego.rotation.y = 0;
-                myego_angle = pi;
+                myego_angle = Math.PI;
                 myego_angle = Math.atan2(myego_lookaty0 - myego_y0, myego_lookatx0 - myego_x0);
                 myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, 1.5);
                 mymagazine.visible = true;
@@ -752,6 +758,130 @@
             const cr_healthdose = 7;
             const cr_armors = 8;
             function thereis_collision(a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
+                myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
+                collision_reason = -1;
+                collision_object = undefined;
+                cix = -1;
+                if (check_ego) {
+                    let b1 = new THREE.Box3();
+                    b1.setFromObject(myego_sphere);
+                    let b2 = new THREE.Box3();
+                    b2.setFromObject(a_object);
+                    b2.intersect(b1);
+                    if (!b2.isEmpty()) {
+                        collision_reason = cr_ego;
+                        return true;
+                    }
+                }
+                if (check_magazine) {
+                    if (mymagazine.visible) {
+                        let b1 = new THREE.Box3();
+                        b1.setFromObject(mymagazine);
+                        let b2 = new THREE.Box3();
+                        b2.setFromObject(a_object);
+                        b2.intersect(b1);
+                        if (!b2.isEmpty()) {
+                            mymagazine.visible = false;
+                            Durchladen.play();
+                            bullets_ingun += max_bullet_in_magazine;
+                            if (bullets_ingun > 7) bullets_ingun = max_bullet_in_magazine;
+                            collision_reason = cr_magazine;
+                            return true;
+                        }
+                    }
+                }
+                if (check_magazine) {
+                    for (j of labhealthdoses) {
+                        if (j.visible) {
+                            let b1 = new THREE.Box3();
+                            b1.setFromObject(j);
+                            let b2 = new THREE.Box3();
+                            b2.setFromObject(a_object);
+                            b2.intersect(b1);
+                            if (!b2.isEmpty()) {
+                                j.visible = false;
+                                HAah.play();
+                                status_health += 50;
+                                if (status_health > 100) status_health = 100;
+                                collision_reason = cr_healthdose;
+                                return true;
+                            }
+                        }
+                    }
+                }
+                if (check_magazine) {
+                    for (j of labarmors) {
+                        if (j.visible) {
+                            let b1 = new THREE.Box3();
+                            b1.setFromObject(j);
+                            let b2 = new THREE.Box3();
+                            b2.setFromObject(a_object);
+                            b2.intersect(b1);
+                            if (!b2.isEmpty()) {
+                                j.visible = false;
+                                HZipper.play();
+                                status_armor += 2;
+                                if (status_armor > 100) status_armor = 100;
+                                collision_reason = cr_armors;
+                                return true;
+                            }
+                        }
+                    }
+                }
+                if (check_transporter) {
+                    let b1 = new THREE.Box3();
+                    b1.setFromObject(mytransporter);
+                    let b2 = new THREE.Box3();
+                    b2.setFromObject(a_object);
+                    b2.intersect(b1);
+                    if (!b2.isEmpty()) {
+                        collision_reason = cr_transporter;
+                        return true;
+                    }
+                }
+                for (let j of labwalls) {
+                    if (!j.visible) continue;
+                    let b1 = new THREE.Box3();
+                    b1.setFromObject(j);
+                    let b2 = new THREE.Box3();
+                    b2.setFromObject(a_object);
+                    b2.intersect(b1);
+                    if (!b2.isEmpty()) {
+                        collision_reason = cr_labwalls;
+                        collision_object = j;
+                        return true;
+                    }
+                }
+                for (let j of labdoors) {
+                    let b1 = new THREE.Box3();
+                    b1.setFromObject(j);
+                    let b2 = new THREE.Box3();
+                    b2.setFromObject(a_object);
+                    b2.intersect(b1);
+                    if (!b2.isEmpty()) {
+                        collision_reason = cr_labdoors;
+                        collision_object = j;
+                        return true;
+                    }
+                }
+                for (let j = 0; j < aliens.length; ++j) {
+                    if (alien_i == j) continue;
+                    if (!aliens[j].visible) continue;
+                    let b1 = new THREE.Box3();
+                    b1.setFromObject(aliens[j]);
+                    let b2 = new THREE.Box3();
+                    b2.setFromObject(a_object);
+                    b2.intersect(b1);
+                    if (!b2.isEmpty()) {
+                        cix = j;
+                        collision_object = aliens[j];
+                        collision_reason = cr_aliens;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
@@ -1153,7 +1283,7 @@
                 vec.y = Math.sin(angle);
             }
 
-            const d_omega0 = 2 * pi / 3000;
+            const d_omega0 = 2 * Math.PI / 3000;
             var v_omegaleft = 0;
             var v_omegaright = 0;
 
@@ -1177,8 +1307,8 @@
                 lookatDir.copy(lookatPoint);
                 cam.z += camtoegodistance;
                 lookatDir.sub(cam);
-                CP.x = Math.cos(myego_angle + pi / 2);
-                CP.y = Math.sin(myego_angle + pi / 2);
+                CP.x = Math.cos(myego_angle + Math.PI / 2);
+                CP.y = Math.sin(myego_angle + Math.PI / 2);
                 CP.z = 0;
                 up.crossVectors(lookatDir, CP);
                 //console.log("cam= (" + cam.x + ", " + cam.y + ", " + cam.z + ", " + ")");
@@ -1196,6 +1326,8 @@
             var egospeed = 0;
             const ego_maxspeed = 20; // unit is m/sec ...1m is 1 unit in THREE.js coordinate system
             const ego_acceleration = 15; // unit is m/sec^2 ...1m is 1 unit in THREE.js coordinate system
+            const ego_maxomega = Math.PI * 2; // unit is Radiant/sec
+            const ego_domega_dt = Math.PI * 2; // unit is Radiant/sec^2
             //
             function process_ego() {
                 // rotate ego
@@ -1206,30 +1338,27 @@
                     myego_angle = mouseAngle0 + mouseDeltaAngle;
                 }
                 else {
-
                     if (pressedKeys[37] && !pressedKeys[18]) {
                         //left
-                        v_omegaleft += d_omega0;
-                        myego_angle += v_omegaleft;
+                        v_omegaleft += ego_domega_dt * time_elapsed / 1000;
+                        if (v_omegaleft > ego_maxomega) v_omegaleft = ego_maxomega;
+                        myego_angle += v_omegaleft * time_elapsed / 1000;
                     }
                     else {
                         v_omegaleft = 0;
                     }
                     if (pressedKeys[39] && !pressedKeys[18]) {
                         //right
-                        v_omegaright += d_omega0;
-                        myego_angle -= v_omegaright;
+                        v_omegaright += ego_domega_dt * time_elapsed / 1000;
+                        if (v_omegaright > ego_maxomega) v_omegaright = ego_maxomega;
+                        myego_angle -= v_omegaright * time_elapsed / 1000;
                     }
                     else {
                         v_omegaright = 0;
                     }
                 }
                 calc_cartesian(myego_direction, myego_angle)
-                myego.rotation.z = pi / 2 + myego_angle;
-                if (thereis_collision(myego_sphere, -1, false, true)) {
-                    myego.rotation.z = backup_rotation.z;
-                    //myego_angle = backup_angle;
-                }
+                myego.rotation.z = Math.PI / 2 + myego_angle;
                 // update egospeed
                 if (pressedKeys[38] || pressedKeys[40] || pressedKeys[188] || pressedKeys[190]) {
                     egospeed += ego_acceleration * time_elapsed / 1000;
