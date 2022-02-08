@@ -41,6 +41,7 @@
         //  <     >  strafe left/right      
         //     v     move backw                               v
         //
+        // erradicate this: myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
 
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
@@ -457,6 +458,7 @@
                         let chleftix = whats_left_ix(i, j);
                         if ("pP+|".includes(chleft)) {
                             var tmp = new THREE.Mesh(geo_wall_vert, mat_wall);
+                            tmp.name = "wall";
                             tmp.position.set((orglab_x - i + .5) * sz_grid, (orglab_y + j) * sz_grid, hecke_hoehe / 2);
                             tmp.castShadow = true; // default is false
                             tmp.receiveShadow = true; // default is false                     
@@ -509,6 +511,7 @@
                         let chupix = whats_up_ix(i, j);
                         if ('pP-'.includes(chup)) {
                             var tmp = new THREE.Mesh(geo_wall_horz, mat_wall);
+                            tmp.name = "wall";
                             tmp.position.set((orglab_x - i) * sz_grid, (orglab_y + j - .5) * sz_grid, hecke_hoehe / 2);
                             tmp.castShadow = true; // default is false
                             tmp.receiveShadow = true; // default is false                     
@@ -886,122 +889,42 @@
                 collision_reason = -1;
                 collision_object = undefined;
                 cix = -1;
-                if (check_ego) {
-                    let b1 = new THREE.Box3();
-                    b1.setFromObject(myego_sphere);
-                    let b2 = new THREE.Box3();
-                    b2.setFromObject(a_object);
-                    b2.intersect(b1);
-                    if (!b2.isEmpty()) {
-                        collision_reason = cr_ego;
-                        return true;
-                    }
-                }
-                if (check_magazine) {
-                    if (mymagazine.visible) {
-                        let b1 = new THREE.Box3();
-                        b1.setFromObject(mymagazine);
-                        let b2 = new THREE.Box3();
-                        b2.setFromObject(a_object);
-                        b2.intersect(b1);
-                        if (!b2.isEmpty()) {
-                            mymagazine.visible = false;
-                            Durchladen.play();
-                            bullets_ingun += max_bullet_in_magazine;
-                            if (bullets_ingun > 7) bullets_ingun = max_bullet_in_magazine;
-                            collision_reason = cr_magazine;
-                            return true;
+                let direction = pos1.clone();
+                direction.sub(pos0);
+                direction.normalize();
+                var r = new THREE.Raycaster(pos0, direction);
+                let md = 1000000000;
+                let dw = [];
+                function checkobject(i) {
+                    if (i.visible) {
+                        let iresult = r.intersectObject(i);
+                        if (iresult.length) {
+                            dw.push({ distance: iresult[0].distance, object: i, name: i.name });
                         }
                     }
                 }
-                if (check_magazine) {
-                    for (j of labhealthdoses) {
-                        if (j.visible) {
-                            let b1 = new THREE.Box3();
-                            b1.setFromObject(j);
-                            let b2 = new THREE.Box3();
-                            b2.setFromObject(a_object);
-                            b2.intersect(b1);
-                            if (!b2.isEmpty()) {
-                                j.visible = false;
-                                HAah.play();
-                                status_health += 50;
-                                if (status_health > 100) status_health = 100;
-                                collision_reason = cr_healthdose;
-                                return true;
-                            }
-                        }
-                    }
+                for (let i of labwalls) {
+                    checkobject(i)
                 }
-                if (check_magazine) {
-                    for (j of labarmors) {
-                        if (j.visible) {
-                            let b1 = new THREE.Box3();
-                            b1.setFromObject(j);
-                            let b2 = new THREE.Box3();
-                            b2.setFromObject(a_object);
-                            b2.intersect(b1);
-                            if (!b2.isEmpty()) {
-                                j.visible = false;
-                                HZipper.play();
-                                status_armor += 2;
-                                if (status_armor > 100) status_armor = 100;
-                                collision_reason = cr_armors;
-                                return true;
-                            }
-                        }
-                    }
+                for (let i of labdoors) {
+                    checkobject(i)
                 }
-                if (check_transporter) {
-                    let b1 = new THREE.Box3();
-                    b1.setFromObject(mytransporter);
-                    let b2 = new THREE.Box3();
-                    b2.setFromObject(a_object);
-                    b2.intersect(b1);
-                    if (!b2.isEmpty()) {
-                        collision_reason = cr_transporter;
-                        return true;
-                    }
+                for (let i of labhealthdoses) {
+                    checkobject(i)
                 }
-                for (let j of labwalls) {
-                    if (!j.visible) continue;
-                    let b1 = new THREE.Box3();
-                    b1.setFromObject(j);
-                    let b2 = new THREE.Box3();
-                    b2.setFromObject(a_object);
-                    b2.intersect(b1);
-                    if (!b2.isEmpty()) {
-                        collision_reason = cr_labwalls;
-                        collision_object = j;
-                        return true;
-                    }
-                }
-                for (let j of labdoors) {
-                    let b1 = new THREE.Box3();
-                    b1.setFromObject(j);
-                    let b2 = new THREE.Box3();
-                    b2.setFromObject(a_object);
-                    b2.intersect(b1);
-                    if (!b2.isEmpty()) {
-                        collision_reason = cr_labdoors;
-                        collision_object = j;
-                        return true;
-                    }
+                for (let i of labarmors) {
+                    checkobject(i)
                 }
                 for (let j = 0; j < aliens.length; ++j) {
                     if (alien_i == j) continue;
                     if (!aliens[j].visible) continue;
-                    let b1 = new THREE.Box3();
-                    b1.setFromObject(aliens[j]);
-                    let b2 = new THREE.Box3();
-                    b2.setFromObject(a_object);
-                    b2.intersect(b1);
-                    if (!b2.isEmpty()) {
-                        cix = j;
-                        collision_object = aliens[j];
-                        collision_reason = cr_aliens;
-                        return true;
-                    }
+                    checkobject(aliens[j]);
+                }
+                checkobject(mytransporter);
+                checkobject(mymagazine);
+                dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                for (let i of dw) {
+                    console.log(dw.indexOf(i) + ": " + i.distance + ", '" + i.name + "'");
                 }
                 return false;
             }
@@ -1366,6 +1289,13 @@
                 }
                 else {
                     egospeed = 0;
+                }
+                if (egospeed > 0) {
+                    let newpos = myego.position.clone();
+                    newpos.x += egospeed * time_elapsed / 1000 * myego_direction.x;
+                    newpos.y += egospeed * time_elapsed / 1000 * myego_direction.y;
+                    let b = thereis_collision2(backup_position, newpos, myego_sphere, -1, false, true);
+                    console.log("thereis_collision2()=" + b);
                 }
                 // move ego x
                 var backup_position = myego.position.clone();
