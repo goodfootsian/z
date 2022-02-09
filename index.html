@@ -242,6 +242,7 @@
             var mouseY0;
             const ms_none = 0;
             const ms_down = 1;
+            const ms_driving = 2;
             var mouseStatus = ms_none;
             var mouseDeltaAngle = 0;
             var mouseAngle0 = 0;
@@ -267,18 +268,28 @@
                 switch (mouseStatus) {
                     case ms_none:
                         break;
-                    case ms_down:
-                        mouseDeltaAngle = (2 * Math.PI * (e.clientX - mouseX0) / window.innerWidth);
-                        console.log("-" + (e.clientY - mouseY0));
+                    case ms_driving:
                         if (e.clientY - mouseY0 < -20) {
+                            mouseDeltaAngle = 0; //-(2 * Math.PI * 10 / 360 * (e.clientX - mouseX0) / window.innerWidth);
                             pressedKeys[38] = true;
-                        } else {
-                            pressedKeys[38] = false;
                         }
-                        if (e.clientY - mouseY0 > 20) {
+                        else if (e.clientY - mouseY0 > 20) {
                             pressedKeys[40] = true;
                         } else {
+                            pressedKeys[38] = false;
                             pressedKeys[40] = false;
+                            mouseStatus = ms_down;
+                        }
+                        break;
+                    case ms_down:
+                        mouseDeltaAngle = (2 * Math.PI * (e.clientX - mouseX0) / window.innerWidth);
+                        if (e.clientY - mouseY0 < -20) {
+                            mouseDeltaAngle = 0;
+                            mouseStatus = ms_driving;
+                        }
+                        else if (e.clientY - mouseY0 > 20) {
+                            mouseDeltaAngle = 0;
+                            mouseStatus = ms_driving;
                         }
                         break;
                 }
@@ -1283,6 +1294,10 @@
                 if (mouseStatus == ms_down) {
                     myego_angle = mouseAngle0 + mouseDeltaAngle;
                 }
+                else if (mouseStatus == ms_driving) {
+                    myego_angle += mouseDeltaAngle * time_elapsed / 1000;
+                    console.log("mouseDeltaAngle=" + mouseDeltaAngle);
+                }
                 else {
                     if (pressedKeys[37] && !pressedKeys[18]) {
                         //left
@@ -1462,8 +1477,6 @@
                     }
                     switch (eventq) {
                         case 13:
-                            ZombieMoaning.play();
-                            console.log("ZombieMoaning.play()");
                             init_game();
                             set_status(st_title);
                             break;
@@ -1526,6 +1539,8 @@
                     if (title_pct >= 100) {
                         textH.style.visibility = 'hidden';
                         title_t0 = 0;
+                        ZombieMoaning.play();
+                        console.log("ZombieMoaning.play()");
                         set_status(st_play);
                     } else {
                         enterButton.style.visibility = "hidden";
