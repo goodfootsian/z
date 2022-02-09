@@ -679,7 +679,7 @@
                 myego_angle = Math.atan2(myego_lookaty0 - myego_y0, myego_lookatx0 - myego_x0);
                 myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, 1.5);
                 mymagazine.visible = true;
-                mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, myego.position.z);
+                mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, .5);
                 Invaders.play();
                 render_game();
             }
