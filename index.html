@@ -239,6 +239,7 @@
             scene.add(myego_sphere);
             // turn ego using the mouse
             var mouseX0;
+            var mouseY0;
             const ms_none = 0;
             const ms_down = 1;
             var mouseStatus = ms_none;
@@ -247,14 +248,19 @@
             window.onmousedown = function (e) {
                 //alert("x=" + e.clientX + ", y=" + e.clientY);
                 mouseX0 = e.clientX;
+                mouseY0 = e.clientY;
                 mouseStatus = ms_down;
                 mouseAngle0 = myego_angle;
                 mouseDeltaAngle = 0;
             }
             window.onmouseup = function (e) {
+                pressedKeys[38] = false;
+                pressedKeys[40] = false;
                 mouseStatus = ms_none;
             }
             window.onmouseout = function (e) {
+                pressedKeys[38] = false;
+                pressedKeys[40] = false;
                 mouseStatus = ms_none;
             }
             window.onmousemove = function (e) {
@@ -263,7 +269,17 @@
                         break;
                     case ms_down:
                         mouseDeltaAngle = (2 * Math.PI * (e.clientX - mouseX0) / window.innerWidth);
-                        //console.log(mouseDeltaAngle);
+                        console.log("-" + (e.clientY - mouseY0));
+                        if (e.clientY - mouseY0 < -20) {
+                            pressedKeys[38] = true;
+                        } else {
+                            pressedKeys[38] = false;
+                        }
+                        if (e.clientY - mouseY0 > 20) {
+                            pressedKeys[40] = true;
+                        } else {
+                            pressedKeys[40] = false;
+                        }
                         break;
                 }
             }
