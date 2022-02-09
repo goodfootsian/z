@@ -224,7 +224,7 @@
             var firelight = new THREE.PointLight(0xffff00, .4);
             scene.add(firelight);
             // create transporter
-            var mytransporter = new THREE.Mesh(new THREE.SphereGeometry(1.5), new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 }));
+            var mytransporter = new THREE.Mesh(new THREE.SphereGeometry(1.5, 64, 32), new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 }));
             scene.add(mytransporter);
             // create the ego
             var myego_angle = 0;
