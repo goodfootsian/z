@@ -1297,12 +1297,15 @@
                 else {
                     egospeed = 0;
                 }
-                if (egospeed > 0) {
+                if (egospeed > 0 && pressedKeys[106]) {
                     // experimental
-                    let newpos = myego.position.clone();
-                    newpos.x += egospeed * time_elapsed / 1000 * myego_direction.x;
-                    newpos.y += egospeed * time_elapsed / 1000 * myego_direction.y;
-                    let b = thereis_collision2(backup_position, newpos, myego_sphere, -1, false, true);
+                    let pos0 = myego.position.clone();
+                    let pos1 = myego.position.clone();
+                    pos0.z = .5;
+                    pos1.z = .5;
+                    pos1.x += egospeed * time_elapsed / 1000 * myego_direction.x;
+                    pos1.y += egospeed * time_elapsed / 1000 * myego_direction.y;
+                    let b = thereis_collision2(pos0, pos1, myego_sphere, -1, false, true);
                     console.log("thereis_collision2()=" + b);
                 }
                 // move ego x
