@@ -679,7 +679,7 @@
                 myego_angle = Math.atan2(myego_lookaty0 - myego_y0, myego_lookatx0 - myego_x0);
                 myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, 1.5);
                 mymagazine.visible = true;
-                mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, .5);
+                mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, myego.position.z);
                 Invaders.play();
                 render_game();
             }
@@ -997,8 +997,15 @@
                         if (dw > dego) {
                             // Direct view contact to ego
                             direct_view_flag = true;
-                            aliens[i].position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x + (Math.random() - .5) / 10;
-                            aliens[i].position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y + (Math.random() - .5) / 10;
+                            //apply some random on the direction
+                            console.log("before dir2ego.x=" + dir2ego.x);
+                            let dir2ego_angle = Math.atan2(dir2ego.y, dir2ego.x);
+                            dir2ego_angle += (Math.random() - .5) * 2 * Math.PI / 360 * 45;
+                            dir2ego.x = Math.cos(dir2ego_angle);
+                            dir2ego.y = Math.sin(dir2ego_angle);
+                            console.log("after dir2ego.x=" + dir2ego.x);
+                            aliens[i].position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x;
+                            aliens[i].position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y;
                         } else {
                             // Normal movement
                             //let tmp = get_distance_to_wall_0(aliens[i].position, alien_direction);
@@ -1291,6 +1298,7 @@
                     egospeed = 0;
                 }
                 if (egospeed > 0) {
+                    // experimental
                     let newpos = myego.position.clone();
                     newpos.x += egospeed * time_elapsed / 1000 * myego_direction.x;
                     newpos.y += egospeed * time_elapsed / 1000 * myego_direction.y;
