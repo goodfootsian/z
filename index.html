@@ -600,7 +600,7 @@
                                 tmp.name = 'alien';
                                 scene.add(tmp);
                                 aliens.push(tmp);
-                                aliens_angle.push(0);
+                                aliens_angle.push(Math.random() * 2 * Math.PI);
                             }
                         }
                         else if (getcontent(i, j) == 'L') {
@@ -778,6 +778,7 @@
             const cr_healthdose = 7;
             const cr_armors = 8;
             function thereis_collision(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
+                //return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter);
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
