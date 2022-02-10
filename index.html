@@ -234,7 +234,8 @@
             var myego_lookaty0 = 0;
             var myego = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 1, 15), new THREE.MeshStandardMaterial({ color: 0x777777 }));
             scene.add(myego);
-            var myego_sphere = new THREE.Mesh(new THREE.SphereGeometry(.5), new THREE.MeshBasicMaterial({ color: 0x000055 }));
+            const ego_radius = .5;
+            var myego_sphere = new THREE.Mesh(new THREE.SphereGeometry(ego_radius), new THREE.MeshBasicMaterial({ color: 0x000055 }));
             myego_sphere.name = "door";
             scene.add(myego_sphere);
             // turn ego using the mouse
@@ -919,14 +920,25 @@
                 let direction = pos1.clone();
                 direction.sub(pos0);
                 direction.normalize();
-                var r = new THREE.Raycaster(pos0, direction);
+                const n_rays = 5;
+                var r = [];
+                for (i = 0; i < n_rays; ++i) {
+                    let offset = i / (n_rays - 1) * 2 - 1;
+                    console.log(offset);
+                    let rayorg = pos0.clone();
+                    rayorg.x += ego_radius * offset * -direction.y;
+                    rayorg.y += ego_radius * offset * direction.x;
+                    r.push(new THREE.Raycaster(rayorg, direction));
+                }
                 let md = 1000000000;
                 let dw = [];
                 function checkobject(i) {
                     if (i.visible) {
-                        let iresult = r.intersectObject(i);
-                        if (iresult.length) {
-                            dw.push({ distance: iresult[0].distance, object: i, name: i.name });
+                        for (ray of r) {
+                            let iresult = ray.intersectObject(i);
+                            if (iresult.length) {
+                                dw.push({ distance: iresult[0].distance, object: i, name: i.name });
+                            }
                         }
                     }
                 }
@@ -1328,14 +1340,15 @@
                 else {
                     egospeed = 0;
                 }
-                if (egospeed > 0 && pressedKeys[106]) {
+                if (pressedKeys[106]) {
+                    pressedKeys[106] = false;
                     // experimental
                     let pos0 = myego.position.clone();
                     let pos1 = myego.position.clone();
                     pos0.z = .5;
                     pos1.z = .5;
-                    pos1.x += egospeed * time_elapsed / 1000 * myego_direction.x;
-                    pos1.y += egospeed * time_elapsed / 1000 * myego_direction.y;
+                    pos1.x += ego_maxspeed * time_elapsed / 1000 * myego_direction.x;
+                    pos1.y += ego_maxspeed * time_elapsed / 1000 * myego_direction.y;
                     let b = thereis_collision2(pos0, pos1, myego_sphere, -1, false, true);
                     console.log("thereis_collision2()=" + b);
                 }
