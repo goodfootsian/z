@@ -31,6 +31,7 @@
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
         // erradicate this: myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
+        // replace "for (i" with "for (let i"
 
         var eventq = 0;
         document.addEventListener('keydown', function (event) {
@@ -593,7 +594,7 @@
                             let n = getnumber(i, j);
                             if (n <= 0) n = 1;
                             //
-                            for (k = 0; k < n; ++k) {
+                            for (let k = 0; k < n; ++k) {
                                 var tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, sz_aliens, 2), mat_aliens);
                                 tmp.position.set(aliens_x0 * sz_grid + k % 3 - 1, aliens_y0 * sz_grid + parseInt(k / 3) - 1, 1);
                                 tmp.castShadow = true; // default is false
@@ -777,7 +778,7 @@
             const cr_labdoors = 6;
             const cr_healthdose = 7;
             const cr_armors = 8;
-            function thereis_collision(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
+            function   thereis_collision (pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter) {
                 //return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter);
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
@@ -903,23 +904,24 @@
                 return false;
             }
             //function thereis_collision(           a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
-            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
+            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
                 cix = -1;
                 let range = pos0.distanceTo(pos1);
-                console.log("range=" + range);
                 let direction = pos1.clone();
                 direction.sub(pos0);
                 direction.normalize();
+                direction.z = 0;
                 const n_rays = 5;
-                var r = [];
-                for (i = 0; i < n_rays; ++i) {
+                let r = [];
+                for (let i = 0; i < n_rays; ++i) {
                     let offset = i / (n_rays - 1) * 2 - 1;
                     let rayorg = pos0.clone();
                     rayorg.x += ego_radius * offset * -direction.y;
                     rayorg.y += ego_radius * offset * direction.x;
+                    rayorg.z = .5;
                     r.push(new THREE.Raycaster(rayorg, direction));
                 }
                 let md = 1000000000;
@@ -929,6 +931,9 @@
                         for (ray of r) {
                             let iresult = ray.intersectObject(i);
                             if (iresult.length) {
+                                if (i.name == "health") {
+                                    console.log("health");
+                                }
                                 dw.push({ distance: iresult[0].distance, object: i, name: i.name });
                             }
                         }
@@ -940,25 +945,33 @@
                 for (let i of labdoors) {
                     checkobject(i)
                 }
-                for (let i of labhealthdoses) {
-                    checkobject(i)
-                }
-                for (let i of labarmors) {
-                    checkobject(i)
+                if (check_magazine) {
+                    checkobject(mymagazine);
+                    for (let i of labhealthdoses) {
+                        checkobject(i)
+                    }
+                    for (let i of labarmors) {
+                        checkobject(i)
+                    }
                 }
                 for (let j = 0; j < aliens.length; ++j) {
                     if (alien_i == j) continue;
                     if (!aliens[j].visible) continue;
                     checkobject(aliens[j]);
                 }
-                checkobject(mytransporter);
-                checkobject(mymagazine);
+                if (check_transporter) {
+                    checkobject(mytransporter);
+                }
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 let result = false;
                 for (let i of dw) {
-                    let inrange = (i.distance < range + ego_radius);
-                    console.log(inrange + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
-                    if (inrange) result = true;
+                    let object_in_range = (i.distance < range + ego_radius);
+                    if (object_in_range) {
+                        result = true;
+                    }
+                    console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "', z=");
+                    //if (object_in_range) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
+                    //break;
                 }
                 return result;
             }
@@ -1013,7 +1026,7 @@
                 let sum_distance = 0;
                 let n_distance = 0;
                 let direct_view_flag = false;
-                for (i = 0; i < aliens.length; ++i) {
+                for (let i = 0; i < aliens.length; ++i) {
                     if (aliens[i].visible) {
                         // make backup
                         var backup_position = aliens[i].position.clone();
@@ -1047,7 +1060,7 @@
                             aliens[i].position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
                             aliens[i].position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
                         }
-                        if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true, false)) {
+                        if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true, true, true)) {
                             // restore backup
                             aliens[i].position.set(backup_position.x, backup_position.y, backup_position.z)
                             aliens_angle[i] = backup_angle;
@@ -1200,7 +1213,7 @@
                         i.object.position.set(i.object.position.x + bulletspeed * time_elapsed / 1000 * Math.cos(i.angle), i.object.position.y + bulletspeed * time_elapsed / 1000 * Math.sin(i.angle), i.object.position.z);
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
-                        if (thereis_collision(backup_position, i.object.position, i.object, -1, false, false)) {
+                        if (thereis_collision(backup_position, i.object.position, i.object, -1, false, false, false)) {
                             i.object.visible = false;
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens) {
@@ -1336,13 +1349,12 @@
                 else {
                     egospeed = 0;
                 }
+                // experimental
                 if (pressedKeys[106]) {
                     pressedKeys[106] = false;
                     // experimental
                     let pos0 = myego.position.clone();
                     let pos1 = myego.position.clone();
-                    pos0.z = .5;
-                    pos1.z = .5;
                     pos1.x += ego_maxspeed * time_elapsed / 1000 * myego_direction.x;
                     pos1.y += ego_maxspeed * time_elapsed / 1000 * myego_direction.y;
                     let b = thereis_collision2(pos0, pos1, myego_sphere, -1, false, true);

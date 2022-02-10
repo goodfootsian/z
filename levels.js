@@ -23,6 +23,16 @@ var lab = [];
 //
 var thislab = new lab_class;
 lab.push(thislab);
+thislab.matrix.push("+---+---+-------+");
+thislab.matrix.push("+     M   L w H w");
+thislab.matrix.push("+           +   +");
+thislab.matrix.push("+ A   E D   w Z w");
+thislab.matrix.push("+-D-+---+   + w +");
+thislab.matrix.push("+ A           T |");
+thislab.matrix.push("+---+---+---+---+");
+//
+var thislab = new lab_class;
+lab.push(thislab);
 thislab.title = "The Stage"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 thislab.matrix.push("+                                 H | T +");
