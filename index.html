@@ -30,17 +30,6 @@
         // Zombies können nur einen 160 grad Winkel überblicken
         // Effekte und Sound beim Wechsel in das nächste Level
         // Hänsel und Gretel Steinchen
-        // speed in units/ms for a) aliens b) ego move
-        // smartphone control
-        // ENTER button
-        // 
-        // swipe = turn left/right
-        // = shoot
-        // = open
-        //     ^     move fwd                                 ^
-        //  <     >  strafe left/right      
-        //     v     move backw                               v
-        //
         // erradicate this: myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
 
         var eventq = 0;
@@ -788,7 +777,7 @@
             const cr_labdoors = 6;
             const cr_healthdose = 7;
             const cr_armors = 8;
-            function thereis_collision(a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
+            function thereis_collision(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
@@ -815,7 +804,7 @@
                             mymagazine.visible = false;
                             Durchladen.play();
                             bullets_ingun += max_bullet_in_magazine;
-                            if (bullets_ingun > 7) bullets_ingun = max_bullet_in_magazine;
+                            if (bullets_ingun > max_bullet_in_magazine) bullets_ingun = max_bullet_in_magazine;
                             collision_reason = cr_magazine;
                             return true;
                         }
@@ -912,11 +901,14 @@
                 }
                 return false;
             }
+            //function thereis_collision(           a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
             function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
                 cix = -1;
+                let range = pos0.distanceTo(pos1);
+                console.log("range=" + range);
                 let direction = pos1.clone();
                 direction.sub(pos0);
                 direction.normalize();
@@ -924,7 +916,6 @@
                 var r = [];
                 for (i = 0; i < n_rays; ++i) {
                     let offset = i / (n_rays - 1) * 2 - 1;
-                    console.log(offset);
                     let rayorg = pos0.clone();
                     rayorg.x += ego_radius * offset * -direction.y;
                     rayorg.y += ego_radius * offset * direction.x;
@@ -962,10 +953,13 @@
                 checkobject(mytransporter);
                 checkobject(mymagazine);
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                let result = false;
                 for (let i of dw) {
-                    console.log(dw.indexOf(i) + ": " + i.distance + ", '" + i.name + "'");
+                    let inrange = (i.distance < range + ego_radius);
+                    console.log(inrange + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
+                    if (inrange) result = true;
                 }
-                return false;
+                return result;
             }
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1037,12 +1031,12 @@
                             // Direct view contact to ego
                             direct_view_flag = true;
                             //apply some random on the direction
-                            console.log("before dir2ego.x=" + dir2ego.x);
+                            //console.log("before dir2ego.x=" + dir2ego.x);
                             let dir2ego_angle = Math.atan2(dir2ego.y, dir2ego.x);
                             dir2ego_angle += (Math.random() - .5) * 2 * Math.PI / 360 * 45;
                             dir2ego.x = Math.cos(dir2ego_angle);
                             dir2ego.y = Math.sin(dir2ego_angle);
-                            console.log("after dir2ego.x=" + dir2ego.x);
+                            //console.log("after dir2ego.x=" + dir2ego.x);
                             aliens[i].position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x;
                             aliens[i].position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y;
                         } else {
@@ -1052,7 +1046,7 @@
                             aliens[i].position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
                             aliens[i].position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
                         }
-                        if (thereis_collision(aliens[i], i, true, false)) {
+                        if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true, false)) {
                             // restore backup
                             aliens[i].position.set(backup_position.x, backup_position.y, backup_position.z)
                             aliens_angle[i] = backup_angle;
@@ -1201,10 +1195,11 @@
                         touch = true;
                         i.object.visible = true;
                         i.fireball.visible = true;
+                        let backup_position = i.object.position.clone()
                         i.object.position.set(i.object.position.x + bulletspeed * time_elapsed / 1000 * Math.cos(i.angle), i.object.position.y + bulletspeed * time_elapsed / 1000 * Math.sin(i.angle), i.object.position.z);
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
-                        if (thereis_collision(i.object, -1, false, false)) {
+                        if (thereis_collision(backup_position, i.object.position, i.object, -1, false, false)) {
                             i.object.visible = false;
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens) {
@@ -1370,7 +1365,7 @@
                     // strafe right
                     myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.y;
                 }
-                if (thereis_collision(myego_sphere, -1, false, true)) {
+                if (thereis_collision(backup_position, myego.position, myego_sphere, -1, false, true)) {
                     myego.position.set(backup_position.x, backup_position.y, backup_position.z)
                 }
                 // move ego y
@@ -1391,7 +1386,7 @@
                     // strafe right
                     myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.x;
                 }
-                if (thereis_collision(myego_sphere, -1, false, true)) {
+                if (thereis_collision(backup_position, myego.position, myego_sphere, -1, false, true)) {
                     myego.position.set(backup_position.x, backup_position.y, backup_position.z)
                 }
                 // Kamera positionieren
@@ -1528,7 +1523,7 @@
                     process_ego();
                     process_doors();
                     render_game();
-                    if (thereis_collision(myego_sphere, -1, false, false, true)) {
+                    if (thereis_collision(myego_sphere.position, myego_sphere.position, myego_sphere, -1, false, false, true)) {
                         if (collision_reason == cr_transporter) {
                             mylevel++;
                             if (mylevel < lab.length) {
