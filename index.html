@@ -708,10 +708,9 @@
             var HAua = new Howl({ src: ['Aua.mp3'] });
             var HAah = new Howl({ src: ['Aah.mp3'] });
             var HZipper = new Howl({ src: ['Zipper.mp3'] });
-            //var Tschioo = new Audio('Tschioo.mp3');
             var Prrt = new Audio('Prrt.mp3');
-            //var Bouff = new Audio('Bouff.mp3');
             var HBouff = new Howl({ src: ['Bouff.mp3'] });
+            var AlienCollides = new Howl({ src: ['AlienCollides.mp3'], volume: 0.3 });
             var Swoosh = new Audio('Swoosh.mp3');
             var Dioomm = new Audio('Dioomm.mp3');
             var Sterben = new Audio('Sterben.mp3');
@@ -974,7 +973,8 @@
                         dw = get_distance_to_wall(aliens[i].position, dir2ego, false);
                         let alien_direction = new THREE.Vector3();
                         calc_cartesian(alien_direction, aliens_angle[i]);
-                        if (dw > dego) {
+                        let direct_view_to_ego = (dw > dego);
+                        if (direct_view_to_ego) {
                             // Direct view contact to ego
                             direct_view_flag = true;
                             //apply some random on the direction
@@ -994,6 +994,11 @@
                             aliens[i].position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
                         }
                         if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true, true, true)) {
+                            if (!direct_view_to_ego) {
+                                let d = aliens[i].position.distanceTo(myego.position);
+                                AlienCollides.volume(5 / d);
+                                AlienCollides.play();
+                            }
                             // restore backup
                             aliens[i].position.set(backup_position.x, backup_position.y, backup_position.z)
                             aliens_angle[i] = backup_angle;
@@ -1339,7 +1344,6 @@
                 {
                     if (mymagazine.visible) {
                         let d = myego.position.distanceTo(mymagazine.position);
-                        console.log(d);
                         if (d < ego_radius * 3) {
                             mymagazine.visible = false;
                             Durchladen.play();
