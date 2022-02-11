@@ -24,7 +24,7 @@ var lab = [];
 var thislab = new lab_class;
 lab.push(thislab);
 thislab.matrix.push("+---+---+-------+");
-thislab.matrix.push("+     M   L w H w");
+thislab.matrix.push("+ H   M   L w H w");
 thislab.matrix.push("+           +   +");
 thislab.matrix.push("+ A   E D   w Z w");
 thislab.matrix.push("+-D-+---+   + w +");

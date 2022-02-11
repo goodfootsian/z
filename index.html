@@ -778,8 +778,8 @@
             const cr_labdoors = 6;
             const cr_healthdose = 7;
             const cr_armors = 8;
-            function   thereis_collision (pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter) {
-                //return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter);
+            function   thereis_collision (pos0, pos1, a_object, alien_i, check_ego) {
+                //return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego);
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
@@ -792,72 +792,6 @@
                     b2.intersect(b1);
                     if (!b2.isEmpty()) {
                         collision_reason = cr_ego;
-                        return true;
-                    }
-                }
-                if (check_magazine) {
-                    if (mymagazine.visible) {
-                        let b1 = new THREE.Box3();
-                        b1.setFromObject(mymagazine);
-                        let b2 = new THREE.Box3();
-                        b2.setFromObject(a_object);
-                        b2.intersect(b1);
-                        if (!b2.isEmpty()) {
-                            mymagazine.visible = false;
-                            Durchladen.play();
-                            bullets_ingun += max_bullet_in_magazine;
-                            if (bullets_ingun > max_bullet_in_magazine) bullets_ingun = max_bullet_in_magazine;
-                            collision_reason = cr_magazine;
-                            return true;
-                        }
-                    }
-                }
-                if (check_magazine) {
-                    for (j of labhealthdoses) {
-                        if (j.visible) {
-                            let b1 = new THREE.Box3();
-                            b1.setFromObject(j);
-                            let b2 = new THREE.Box3();
-                            b2.setFromObject(a_object);
-                            b2.intersect(b1);
-                            if (!b2.isEmpty()) {
-                                j.visible = false;
-                                HAah.play();
-                                status_health += 50;
-                                if (status_health > 100) status_health = 100;
-                                collision_reason = cr_healthdose;
-                                return true;
-                            }
-                        }
-                    }
-                }
-                if (check_magazine) {
-                    for (j of labarmors) {
-                        if (j.visible) {
-                            let b1 = new THREE.Box3();
-                            b1.setFromObject(j);
-                            let b2 = new THREE.Box3();
-                            b2.setFromObject(a_object);
-                            b2.intersect(b1);
-                            if (!b2.isEmpty()) {
-                                j.visible = false;
-                                HZipper.play();
-                                status_armor += 2;
-                                if (status_armor > 100) status_armor = 100;
-                                collision_reason = cr_armors;
-                                return true;
-                            }
-                        }
-                    }
-                }
-                if (check_transporter) {
-                    let b1 = new THREE.Box3();
-                    b1.setFromObject(mytransporter);
-                    let b2 = new THREE.Box3();
-                    b2.setFromObject(a_object);
-                    b2.intersect(b1);
-                    if (!b2.isEmpty()) {
-                        collision_reason = cr_transporter;
                         return true;
                     }
                 }
@@ -903,8 +837,7 @@
                 }
                 return false;
             }
-            //function thereis_collision(           a_object, alien_i, check_ego, check_magazine, check_transporter = false) {
-            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_magazine, check_transporter) {
+            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
                 collision_reason = -1;
                 collision_object = undefined;
@@ -1402,6 +1335,47 @@
                 if (thereis_collision(backup_position, myego.position, myego_sphere, -1, false, true)) {
                     myego.position.set(backup_position.x, backup_position.y, backup_position.z)
                 }
+                // check magazine
+                {
+                    if (mymagazine.visible) {
+                        let d = myego.position.distanceTo(mymagazine.position);
+                        console.log(d);
+                        if (d < ego_radius * 3) {
+                            mymagazine.visible = false;
+                            Durchladen.play();
+                            bullets_ingun += max_bullet_in_magazine;
+                            if (bullets_ingun > max_bullet_in_magazine) bullets_ingun = max_bullet_in_magazine;
+                        }
+                    }
+                }
+                // check health doses
+                {
+                    for (let j of labhealthdoses) {
+                        if (j.visible) {
+                            let d = myego.position.distanceTo(j.position);
+                            if (d < ego_radius * 2) {
+                                j.visible = false;
+                                HAah.play();
+                                status_health += 50;
+                                if (status_health > 100) status_health = 100;
+                            }
+                        }
+                    }
+                }
+                // check armor
+                {
+                    for (let j of labarmors) {
+                        if (j.visible) {
+                            let d = myego.position.distanceTo(j.position);
+                            if (d < ego_radius * 2) {
+                                j.visible = false;
+                                HZipper.play();
+                                status_armor += 2;
+                                if (status_armor > 100) status_armor = 100;
+                            }
+                        }
+                    }
+                }
                 // Kamera positionieren
                 var C = new THREE.Vector3();
                 var M = new THREE.Vector3();
@@ -1536,17 +1510,15 @@
                     process_ego();
                     process_doors();
                     render_game();
-                    if (thereis_collision(myego_sphere.position, myego_sphere.position, myego_sphere, -1, false, false, true)) {
-                        if (collision_reason == cr_transporter) {
-                            mylevel++;
-                            if (mylevel < lab.length) {
-                                init_game();
-                                set_status(st_title);
-                            }
-                            else {
-                                set_status(st_gameover);
-                                mylevel = 0;
-                            }
+                    if (myego.position.distanceTo(mytransporter.position) < ego_radius * 4) {
+                        mylevel++;
+                        if (mylevel < lab.length) {
+                            init_game();
+                            set_status(st_title);
+                        }
+                        else {
+                            set_status(st_gameover);
+                            mylevel = 0;
                         }
                     }
                 }
