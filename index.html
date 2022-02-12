@@ -350,17 +350,12 @@
             }
 
             // create the Labyrinth
-            const sz_aliens = 1;
-            var alienscorpses = [];
-            var aliens = [];
-            var aliens_angle = [];
             var labwalls = [];
             var labdoors = [];
             var labhealthdoses = [];
             var labarmors = [];
             var labpics = [];
             var mylevel = 0;
-            var lab_n_aliens = 0;
             //
             function getcontent(x, y) {
                 try {
@@ -436,6 +431,13 @@
             const doors_height_open = 3 * hecke_hoehe / 2;
             var orglab_x = 0;//4;
             var orglab_y = 0;//-7;
+            //
+            const sz_aliens = 1;
+            var aliens = [];
+            const al_livingdead = 0;
+            const al_dead = 1;
+            const al_petrified = 2;
+            //
             function build_lab() {
                 for (i of labwalls) {
                     scene.remove(i);
@@ -454,18 +456,13 @@
                 }
                 labarmors = [];
                 for (i of aliens) {
-                    scene.remove(i);
+                    scene.remove(i.object);
                 }
                 aliens = [];
-                aliens_angle = [];
                 for (i of labpics) {
                     scene.remove(i);
                 }
                 labpics = [];
-                for (i of alienscorpses) {
-                    scene.remove(i);
-                }
-                alienscorpses = [];
                 szlab_x = lab[mylevel].matrix[0].length / 4;
                 szlab_y = lab[mylevel].matrix.length / 2;
                 mytransporter.visible = false;
@@ -600,8 +597,8 @@
                                 tmp.castShadow = true; // default is false
                                 tmp.name = 'alien';
                                 scene.add(tmp);
-                                aliens.push(tmp);
-                                aliens_angle.push(Math.random() * 2 * Math.PI);
+                                aliens.push({ status: al_livingdead, object: tmp, angle: Math.random() * 2 * Math.PI });
+                                console.log(aliens[0]);
                             }
                         }
                         else if (getcontent(i, j) == 'L') {
@@ -766,7 +763,7 @@
             var status_armor = 0; // [0, 100] 0 = kein Schutz, 100 = unverwundbar
 
             // check collision
-            var cix = -1;
+            var collision_index = -1;
             var collision_reason = -1;
             var collision_object = undefined;
             const cr_magazine = 1;
@@ -783,7 +780,7 @@
                 myego_sphere.position.set(myego.position.x, myego.position.y, .5);
                 collision_reason = -1;
                 collision_object = undefined;
-                cix = -1;
+                collision_index = -1;
                 if (check_ego) {
                     let b1 = new THREE.Box3();
                     b1.setFromObject(myego_sphere);
@@ -822,15 +819,15 @@
                 }
                 for (let j = 0; j < aliens.length; ++j) {
                     if (alien_i == j) continue;
-                    if (!aliens[j].visible) continue;
+                    if (!aliens[j].object.visible) continue;
                     let b1 = new THREE.Box3();
-                    b1.setFromObject(aliens[j]);
+                    b1.setFromObject(aliens[j].object);
                     let b2 = new THREE.Box3();
                     b2.setFromObject(a_object);
                     b2.intersect(b1);
                     if (!b2.isEmpty()) {
-                        cix = j;
-                        collision_object = aliens[j];
+                        collision_index = j;
+                        collision_object = aliens[j].object;
                         collision_reason = cr_aliens;
                         return true;
                     }
@@ -841,7 +838,7 @@
                 myego_sphere.position.set(myego.position.x, myego.position.y, .5);
                 collision_reason = -1;
                 collision_object = undefined;
-                cix = -1;
+                collision_index = -1;
                 let range = pos0.distanceTo(pos1);
                 let direction = pos1.clone();
                 direction.sub(pos0);
@@ -859,14 +856,14 @@
                 }
                 let md = 1000000000;
                 let dw = [];
-                function checkobject(i) {
+                function checkobject(i, ix = -1) {
                     if (i.visible) {
                         for (ray of r) {
                             let iresult = ray.intersectObject(i);
                             if (iresult.length) {
                                 if (i.name == "health") {
                                 }
-                                dw.push({ distance: iresult[0].distance, object: i });
+                                dw.push({ distance: iresult[0].distance, object: i, index: ix });
                             }
                         }
                     }
@@ -890,8 +887,8 @@
                 }
                 for (let j = 0; j < aliens.length; ++j) {
                     if (alien_i == j) continue;
-                    if (!aliens[j].visible) continue;
-                    checkobject(aliens[j]);
+                    if (!aliens[j].object.visible) continue;
+                    checkobject(aliens[j].object, j);
                 }
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 let result = false;
@@ -906,6 +903,7 @@
                 }
                 if (dw.length) {
                     collision_object = dw[0].object;
+                    collision_index = dw[0].index;
                 }
                 return result;
             }
@@ -961,22 +959,23 @@
                 let n_distance = 0;
                 let direct_view_flag = false;
                 for (let i = 0; i < aliens.length; ++i) {
-                    if (aliens[i].visible) {
+                    if (aliens[i].status == al_dead) continue;
+                    if (aliens[i].object.visible) {
                         // make backup
-                        var backup_position = aliens[i].position.clone();
-                        var backup_angle = aliens_angle[i];
+                        var backup_position = aliens[i].object.position.clone();
+                        var backup_angle = aliens[i].angle;
                         // check if we can see the ego
                         n_distance++;
-                        var dego = myego.position.distanceTo(aliens[i].position);
+                        var dego = myego.position.distanceTo(aliens[i].object.position);
                         sum_distance += dego;
                         let dir2ego = myego.position.clone();
-                        dir2ego.sub(aliens[i].position);
+                        dir2ego.sub(aliens[i].object.position);
                         dir2ego.normalize();
-                        dw = get_distance_to_wall(aliens[i].position, dir2ego, false);
+                        dw = get_distance_to_wall(aliens[i].object.position, dir2ego, false);
                         let alien_direction = new THREE.Vector3();
-                        calc_cartesian(alien_direction, aliens_angle[i]);
+                        calc_cartesian(alien_direction, aliens[i].angle);
                         let direct_view_to_ego = (dw > dego);
-                        let direct_view_to_ego2 = (thereis_collision2(aliens[i].position, myego_sphere.position, aliens[i], i, true) && collision_object.name != 'ego');
+                        let direct_view_to_ego2 = (thereis_collision2(aliens[i].object.position, myego_sphere.position, aliens[i].object, i, true) && collision_object.name != 'ego');
                         console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
                         if (direct_view_to_ego) {
                             // Direct view contact to ego
@@ -988,27 +987,27 @@
                             dir2ego.x = Math.cos(dir2ego_angle);
                             dir2ego.y = Math.sin(dir2ego_angle);
                             //console.log("after dir2ego.x=" + dir2ego.x);
-                            aliens[i].position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x;
-                            aliens[i].position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y;
+                            aliens[i].object.position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x;
+                            aliens[i].object.position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y;
                         } else {
                             // Normal movement
-                            //let tmp = get_distance_to_wall_0(aliens[i].position, alien_direction);
+                            //let tmp = get_distance_to_wall_0(aliens[i].object.position, alien_direction);
                             //console.log("distance to next wall=" + tmp);
-                            aliens[i].position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
-                            aliens[i].position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
+                            aliens[i].object.position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
+                            aliens[i].object.position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
                         }
-                        if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true)) {
+                        if (thereis_collision(backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
                             if (!direct_view_to_ego) {
-                                let d = aliens[i].position.distanceTo(myego.position);
+                                let d = aliens[i].object.position.distanceTo(myego.position);
                                 AlienCollides.volume(5 / d);
                                 AlienCollides.play();
                             }
                             // restore backup
-                            aliens[i].position.set(backup_position.x, backup_position.y, backup_position.z)
-                            aliens_angle[i] = backup_angle;
+                            aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
+                            aliens[i].angle = backup_angle;
                             // choose a new direction
                             {
-                                let improved_point = aliens[i].position.clone();
+                                let improved_point = aliens[i].object.position.clone();
                                 //improved_point.x += 0.2 * sz_aliens * alien_direction.x;
                                 //improved_point.y += 0.2 * sz_aliens * alien_direction.y;
                                 let dw = [];
@@ -1020,14 +1019,9 @@
                                         dw.push({angle: probe_angle, distance: d});
                                     }
                                 }
-                                /*
-                                console.log("angle=" + aliens_angle[i]);
-                                for (k of dw) {
-                                    console.log("dw[" + dw.indexOf(k) + "]" + k.angle + ", " + k.distance);
-                                }*/
                                 if (dw.length > 0) {
                                     let choice = parseInt(dw.length * Math.random())
-                                    aliens_angle[i] = dw[choice].angle;
+                                    aliens[i].angle = dw[choice].angle;
                                     //console.log("choice=" + choice);
                                 }
                                 else {
@@ -1159,12 +1153,12 @@
                             i.object.visible = false;
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens || collision_object.name == 'alien') {
-                                collision_object.visible = false;
+                                scene.remove(collision_object);
                                 let tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, 2 * sz_aliens, .5), mat_deadaliens);
                                 tmp.position.set(collision_object.position.x, collision_object.position.y, 0);
                                 scene.add(tmp);
-                                alienscorpses.push(tmp);
-                                //SeeYa.pause();
+                                aliens[collision_index].object = tmp;
+                                aliens[collision_index].status = al_dead;
                                 Sterben.play();
                                 ++score;
                                 if (!mymagazine.visible) {
