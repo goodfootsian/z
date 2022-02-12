@@ -719,8 +719,8 @@
             var DoorStop = new Audio('DoorStop.mp3');
             Invaders.volume = 0.2;
             Invaders.loop = true;
-            var ZombieMoaning = new Audio('Zombie Moaning.mp3');
-            ZombieMoaning.loop = true;
+            var ZombieMoaning = new Howl({ src: ['Zombie Moaning.mp3'] });
+            ZombieMoaning.loop(true);
             var ZombieEating = new Audio('Zombie Eating.mp3');
             ZombieEating.loop = true;
             var SeeYa = new Howl({ src: ['SeeYa.mp3'] });
@@ -966,6 +966,9 @@
                         if (Date.now() > aliens[i].t0 + 500) {
                             aliens[i].status = al_livingdead;
                         }
+                        n_distance++;
+                        let dego = myego.position.distanceTo(aliens[i].object.position);
+                        sum_distance += dego;
                     }
                     else if (aliens[i].status == al_livingdead) {
                         if (aliens[i].object.visible) {
@@ -974,7 +977,7 @@
                             var backup_angle = aliens[i].angle;
                             // check if we can see the ego
                             n_distance++;
-                            var dego = myego.position.distanceTo(aliens[i].object.position);
+                            let dego = myego.position.distanceTo(aliens[i].object.position);
                             sum_distance += dego;
                             let dir2ego = myego.position.clone();
                             dir2ego.sub(aliens[i].object.position);
@@ -1072,12 +1075,10 @@
                     let volume = 5 / avg_distance; // / avg_distance;
                     if (volume < 0) volume = 0;
                     if (volume >= 1) volume = 1;
-                    ZombieMoaning.volume = volume;
-                    //console.log("ZombieMoaning.volume=" + ZombieMoaning.volume);
+                    ZombieMoaning.volume(volume);
                 } else {
                     Invaders.pause();
-                    ZombieMoaning.volume = 0;
-                    //console.log("ZombieMoaning.volume=" + ZombieMoaning.volume);
+                    ZombieMoaning.volume(0);
                 }
             }
 
