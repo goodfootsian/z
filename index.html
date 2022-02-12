@@ -698,12 +698,12 @@
                 myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, 1.5);
                 mymagazine.visible = true;
                 mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, .5);
-                Invaders.play();
+                //Invaders.play();
                 render_game();
             }
 
             // load audio
-            var Level = new Howl({ src: ['level.mp3'] });
+            var Level = new Howl({ src: ['InvadersTitle.mp3'] });
             var HTschioo = new Howl({ src: ['Tschioo.mp3'] });
             var HAua = new Howl({ src: ['Aua.mp3'] });
             var HAah = new Howl({ src: ['Aah.mp3'] });
@@ -839,7 +839,6 @@
             }
             function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, .5);
-                console
                 collision_reason = -1;
                 collision_object = undefined;
                 cix = -1;
@@ -977,6 +976,8 @@
                         let alien_direction = new THREE.Vector3();
                         calc_cartesian(alien_direction, aliens_angle[i]);
                         let direct_view_to_ego = (dw > dego);
+                        let direct_view_to_ego2 = (thereis_collision2(aliens[i].position, myego_sphere.position, aliens[i], i, true) && collision_object.name != 'ego');
+                        console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
                         if (direct_view_to_ego) {
                             // Direct view contact to ego
                             direct_view_flag = true;
@@ -1530,8 +1531,9 @@
                     if (title_t0 == 0) {
                         title_t0 = Date.now();
                         Level.play();
+                        Invaders.pause();
                     }
-                    const title_d = 3000;
+                    const title_d = 4000;
                     let title_pct = (Date.now() - title_t0) * 100 / title_d;
                     if (title_pct >= 100) {
                         textH.style.visibility = 'hidden';
@@ -1539,6 +1541,7 @@
                         ZombieMoaning.play();
                         console.log("ZombieMoaning.play()");
                         set_status(st_play);
+                        Invaders.play();
                     } else {
                         enterButton.style.visibility = "hidden";
                         textH.style.visibility = 'visible';
