@@ -226,7 +226,7 @@
             scene.add(myego);
             const ego_radius = .5;
             var myego_sphere = new THREE.Mesh(new THREE.SphereGeometry(ego_radius), new THREE.MeshBasicMaterial({ color: 0x000055 }));
-            myego_sphere.name = "door";
+            myego_sphere.name = "ego";
             scene.add(myego_sphere);
             // turn ego using the mouse
             var mouseX0;
@@ -777,9 +777,10 @@
             const cr_labdoors = 6;
             const cr_healthdose = 7;
             const cr_armors = 8;
+            const cr_labwindows = 9;
             function   thereis_collision (pos0, pos1, a_object, alien_i, check_ego) {
-                //return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego);
-                myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
+                return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego);
+                myego_sphere.position.set(myego.position.x, myego.position.y, .5);
                 collision_reason = -1;
                 collision_object = undefined;
                 cix = -1;
@@ -837,7 +838,8 @@
                 return false;
             }
             function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego) {
-                myego_sphere.position.set(myego.position.x, myego.position.y, myego_sphere.position.z);
+                myego_sphere.position.set(myego.position.x, myego.position.y, .5);
+                console
                 collision_reason = -1;
                 collision_object = undefined;
                 cix = -1;
@@ -864,9 +866,8 @@
                             let iresult = ray.intersectObject(i);
                             if (iresult.length) {
                                 if (i.name == "health") {
-                                    console.log("health");
                                 }
-                                dw.push({ distance: iresult[0].distance, object: i, name: i.name });
+                                dw.push({ distance: iresult[0].distance, object: i });
                             }
                         }
                     }
@@ -877,22 +878,21 @@
                 for (let i of labdoors) {
                     checkobject(i)
                 }
-                if (check_magazine) {
-                    checkobject(mymagazine);
-                    for (let i of labhealthdoses) {
-                        checkobject(i)
-                    }
-                    for (let i of labarmors) {
-                        checkobject(i)
-                    }
+                if (check_ego) {
+                    checkobject(myego_sphere);
+                }
+                //checkobject(mytransporter);
+                //checkobject(mymagazine);
+                for (let i of labhealthdoses) {
+                    checkobject(i)
+                }
+                for (let i of labarmors) {
+                    checkobject(i)
                 }
                 for (let j = 0; j < aliens.length; ++j) {
                     if (alien_i == j) continue;
                     if (!aliens[j].visible) continue;
                     checkobject(aliens[j]);
-                }
-                if (check_transporter) {
-                    checkobject(mytransporter);
                 }
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 let result = false;
@@ -901,9 +901,12 @@
                     if (object_in_range) {
                         result = true;
                     }
-                    console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "', z=");
+                    //console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.object.name + "', z=");
                     //if (object_in_range) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
                     //break;
+                }
+                if (dw.length) {
+                    collision_object = dw[0].object;
                 }
                 return result;
             }
@@ -993,7 +996,7 @@
                             aliens[i].position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
                             aliens[i].position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
                         }
-                        if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true, true, true)) {
+                        if (thereis_collision(backup_position, aliens[i].position, aliens[i], i, true)) {
                             if (!direct_view_to_ego) {
                                 let d = aliens[i].position.distanceTo(myego.position);
                                 AlienCollides.volume(5 / d);
@@ -1031,7 +1034,7 @@
                                 }
                             }
                             // check egohit
-                            if (collision_reason == cr_ego && status == st_play && damage_onhold < Date.now()) {
+                            if ((collision_reason == cr_ego || collision_object.name == 'ego') && status == st_play && damage_onhold < Date.now()) {
                                 let damage = 20;
                                 damage *= (100 - status_armor) / 100;
                                 status_health -= damage;
@@ -1136,7 +1139,7 @@
             //
             function process_bullets() {
                 // bullet movement
-                const bulletspeed = 30;
+                const bulletspeed = 30; // unit is m/sec.
                 let touch = false;
                 for (i of bullet) {
                     if (i.status == bs_none) {
@@ -1151,10 +1154,10 @@
                         i.object.position.set(i.object.position.x + bulletspeed * time_elapsed / 1000 * Math.cos(i.angle), i.object.position.y + bulletspeed * time_elapsed / 1000 * Math.sin(i.angle), i.object.position.z);
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
-                        if (thereis_collision(backup_position, i.object.position, i.object, -1, false, false, false)) {
+                        if (thereis_collision(backup_position, i.object.position, i.object, -1, false)) {
                             i.object.visible = false;
                             i.fireball.visible = false;
-                            if (collision_reason == cr_aliens) {
+                            if (collision_reason == cr_aliens || collision_object.name == 'alien') {
                                 collision_object.visible = false;
                                 let tmp = new THREE.Mesh(new THREE.BoxGeometry(sz_aliens, 2 * sz_aliens, .5), mat_deadaliens);
                                 tmp.position.set(collision_object.position.x, collision_object.position.y, 0);
@@ -1168,14 +1171,11 @@
                                     mymagazine.position.set(collision_object.position.x, collision_object.position.y, mymagazine.position.z);
                                 }
                             }
-                            else if (collision_reason == cr_labwalls) {
-                                if (collision_object.name == "window") {
-                                    collision_object.visible = false;
-                                } else {
-                                    HBouff.play();
-                                }
+                            else if (collision_reason == cr_labwalls || collision_object.name == 'window') {
+                                collision_object.visible = false;
+                                HBouff.play();
                             }
-                            else {
+                            else if (collision_reason == cr_labwalls || collision_object.name == 'wall') {
                                 HBouff.play();
                             }
                             i.status = bs_none;
