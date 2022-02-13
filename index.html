@@ -191,10 +191,6 @@
                 1000                                    // Far plane distance
             );
 
-            // Add point light
-            var light = new THREE.PointLight(0xffffff, .4);
-            light.position.set(10, 10, 10);
-            //scene.add(light);
             // Add ambient light
             ambientLight = new THREE.AmbientLight(0x777777);
             scene.add(ambientLight);
@@ -212,6 +208,8 @@
             scene.add(mymagazine);
             // create firelight
             var firelight = new THREE.PointLight(0xffff00, .4);
+            firelight.position.set(1, 1, -1);
+            firelight.visible = false;
             scene.add(firelight);
             // create transporter
             var mytransporter = new THREE.Mesh(new THREE.SphereGeometry(1.5, 64, 32), new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 }));
@@ -748,6 +746,7 @@
                 bullet[i].object.visible = false;
                 scene.add(bullet[i].object);
                 bullet[i].fireball = new THREE.Mesh(new THREE.SphereGeometry(.1), new THREE.MeshBasicMaterial({ color: 0xff8800, transparent: true, opacity: 0.7 }));
+                bullet[i].fireball.visible = false;
                 scene.add(bullet[i].fireball);
             }
             var bullets_ingun = 0;
@@ -1387,6 +1386,7 @@
                         }
                     }
                 }
+                firelight.position.set(myego.position.x, myego.position.y, myego.position.z);
                 // Kamera positionieren
                 var C = new THREE.Vector3();
                 var M = new THREE.Vector3();
@@ -1545,7 +1545,7 @@
                         textH.style.visibility = 'hidden';
                         title_t0 = 0;
                         ZombieMoaning.play();
-                        console.log("ZombieMoaning.play()");
+                        //console.log("ZombieMoaning.play()");
                         set_status(st_play);
                         Invaders.play();
                     } else {
