@@ -833,7 +833,7 @@
                 }
                 return false;
             }
-            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego) {
+            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_window = true) {
                 myego_sphere.position.set(myego.position.x, myego.position.y, .5);
                 collision_reason = -1;
                 collision_object = undefined;
@@ -868,6 +868,7 @@
                     }
                 }
                 for (let i of labwalls) {
+                    if (i.name == "window" && !check_window) continue;
                     checkobject(i)
                 }
                 for (let i of labdoors) {
@@ -957,6 +958,7 @@
                 let sum_distance = 0;
                 let n_distance = 0;
                 let direct_view_flag = false;
+                let speed = alien_speed;
                 for (let i = 0; i < aliens.length; ++i) {
                     if (aliens[i].status == al_dead) {
                         continue;
@@ -972,8 +974,8 @@
                     else if (aliens[i].status == al_livingdead) {
                         if (aliens[i].object.visible) {
                             // make backup
-                            var backup_position = aliens[i].object.position.clone();
-                            var backup_angle = aliens[i].angle;
+                            let backup_position = aliens[i].object.position.clone();
+                            let backup_angle = aliens[i].angle;
                             // check if we can see the ego
                             n_distance++;
                             let dego = myego.position.distanceTo(aliens[i].object.position);
@@ -982,30 +984,21 @@
                             dir2ego.sub(aliens[i].object.position);
                             dir2ego.normalize();
                             dw = get_distance_to_wall(aliens[i].object.position, dir2ego, false);
-                            let alien_direction = new THREE.Vector3();
-                            calc_cartesian(alien_direction, aliens[i].angle);
                             let direct_view_to_ego = (dw > dego);
-                            let direct_view_to_ego2 = (thereis_collision2(aliens[i].object.position, myego_sphere.position, aliens[i].object, i, true) && collision_object.name != 'ego');
+                            let direct_view_to_ego2 = (thereis_collision2(aliens[i].object.position, myego_sphere.position, aliens[i].object, i, true, false) && collision_object.name == 'ego');
                             console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
                             if (direct_view_to_ego) {
                                 // Direct view contact to ego
                                 direct_view_flag = true;
+                                aliens[i].angle = Math.atan2(dir2ego.y, dir2ego.x);
                                 //apply some random on the direction
-                                //console.log("before dir2ego.x=" + dir2ego.x);
-                                let dir2ego_angle = Math.atan2(dir2ego.y, dir2ego.x);
-                                dir2ego_angle += (Math.random() - .5) * 2 * Math.PI / 360 * 45;
-                                dir2ego.x = Math.cos(dir2ego_angle);
-                                dir2ego.y = Math.sin(dir2ego_angle);
-                                //console.log("after dir2ego.x=" + dir2ego.x);
-                                aliens[i].object.position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x;
-                                aliens[i].object.position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y;
-                            } else {
-                                // Normal movement
-                                //let tmp = get_distance_to_wall_0(aliens[i].object.position, alien_direction);
-                                //console.log("distance to next wall=" + tmp);
-                                aliens[i].object.position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
-                                aliens[i].object.position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
+                                aliens[i].angle += (Math.random() - .5) * 2 * Math.PI / 360 * 45;
+                                speed = alien_attack_speed;
                             }
+                            let alien_direction = new THREE.Vector3();
+                            calc_cartesian(alien_direction, aliens[i].angle);
+                            aliens[i].object.position.x += speed * time_elapsed / 1000 * alien_direction.x;
+                            aliens[i].object.position.y += speed * time_elapsed / 1000 * alien_direction.y;
                             if (thereis_collision(backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
                                 if (!direct_view_to_ego) {
                                     let d = aliens[i].object.position.distanceTo(myego.position);
