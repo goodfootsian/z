@@ -851,18 +851,21 @@
                     rayorg.x += ego_radius * offset * -direction.y;
                     rayorg.y += ego_radius * offset * direction.x;
                     rayorg.z = .5;
-                    r.push(new THREE.Raycaster(rayorg, direction));
+                    let elm = { rc: new THREE.Raycaster(rayorg, direction), dd: ego_radius * (1 - Math.sin(Math.acos(offset))) };
+                    //elm.dd = ego_radius * Math.abs(offset)
+                    r.push(elm);
+                    //console.log(i + ": " + elm.dd);
                 }
                 let md = 1000000000;
                 let dw = [];
                 function checkobject(i, ix = -1) {
                     if (i.visible) {
-                        for (ray of r) {
-                            let iresult = ray.intersectObject(i);
+                        for (let ray of r) {
+                            let iresult = ray.rc.intersectObject(i);
                             if (iresult.length) {
                                 if (i.name == "health") {
                                 }
-                                dw.push({ distance: iresult[0].distance, object: i, index: ix });
+                                dw.push({ distance: iresult[0].distance + ray.dd, object: i, index: ix });
                             }
                         }
                     }
