@@ -852,7 +852,7 @@
                     rayorg.y += ego_radius * offset * direction.x;
                     rayorg.z = .5;
                     let elm = { rc: new THREE.Raycaster(rayorg, direction), dd: ego_radius * (1 - Math.sin(Math.acos(offset))) };
-                    //elm.dd = ego_radius * Math.abs(offset)
+                    elm.dd = ego_radius * Math.abs(offset)
                     r.push(elm);
                     //console.log(i + ": " + elm.dd);
                 }
@@ -976,6 +976,24 @@
                     }
                     else if (aliens[i].status == al_livingdead) {
                         if (aliens[i].object.visible) {
+                            function get_new_direction(object) {
+                                let improved_point = aliens[i].object.position.clone();
+                                let dw = [];
+                                for (let probe_angle = 0; probe_angle < 2 * Math.PI; probe_angle += 2 * Math.PI / 13) {
+                                    let probedir = new THREE.Vector3();
+                                    calc_cartesian(probedir, probe_angle);
+                                    let d = get_distance_to_wall(improved_point, probedir, true);
+                                    if (d > 2) {
+                                        dw.push({ angle: probe_angle, distance: d });
+                                    }
+                                }
+                                if (dw.length > 0) {
+                                    let choice = parseInt(dw.length * Math.random())
+                                    return dw[choice].angle;
+                                }
+                                alert("deadlock");
+                                return 0;
+                            }
                             // make backup
                             let backup_position = aliens[i].object.position.clone();
                             let backup_angle = aliens[i].angle;
@@ -986,10 +1004,10 @@
                             let dir2ego = myego.position.clone();
                             dir2ego.sub(aliens[i].object.position);
                             dir2ego.normalize();
-                            dw = get_distance_to_wall(aliens[i].object.position, dir2ego, false);
-                            let direct_view_to_ego = (dw > dego);
-                            let direct_view_to_ego2 = (thereis_collision2(aliens[i].object.position, myego_sphere.position, aliens[i].object, i, true, false) && collision_object.name == 'ego');
-                            console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
+                            //dw = get_distance_to_wall(aliens[i].object.position, dir2ego, false);
+                            //let direct_view_to_ego2 = (dw > dego);
+                            let direct_view_to_ego = (thereis_collision2(aliens[i].object.position, myego_sphere.position, aliens[i].object, i, true, false) && collision_object.name == 'ego');
+                            //console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
                             if (direct_view_to_ego) {
                                 // Direct view contact to ego
                                 direct_view_flag = true;
@@ -1011,29 +1029,8 @@
                                 // restore backup
                                 aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
                                 aliens[i].angle = backup_angle;
-                                // choose a new direction
-                                {
-                                    let improved_point = aliens[i].object.position.clone();
-                                    //improved_point.x += 0.2 * sz_aliens * alien_direction.x;
-                                    //improved_point.y += 0.2 * sz_aliens * alien_direction.y;
-                                    let dw = [];
-                                    for (let probe_angle = 0; probe_angle < 2 * Math.PI; probe_angle += 2 * Math.PI / 13) {
-                                        let probedir = new THREE.Vector3();
-                                        calc_cartesian(probedir, probe_angle);
-                                        let d = get_distance_to_wall(improved_point, probedir, true);
-                                        if (d > 2) {
-                                            dw.push({ angle: probe_angle, distance: d });
-                                        }
-                                    }
-                                    if (dw.length > 0) {
-                                        let choice = parseInt(dw.length * Math.random())
-                                        aliens[i].angle = dw[choice].angle;
-                                        //console.log("choice=" + choice);
-                                    }
-                                    else {
-                                        console.log("deadlock");
-                                    }
-                                }
+                                // choose new direction
+                                aliens[i].angle = get_new_direction(aliens[i]);
                                 // check egohit
                                 if ((collision_reason == cr_ego || collision_object.name == 'ego') && status == st_play && damage_onhold < Date.now()) {
                                     let damage = 20;
@@ -1057,13 +1054,15 @@
                                 debugcnt++;
                             }
                         }
+                        if (direct_view_flag) {
+                            if (!SeeYa.playing()) SeeYa.play();
+                            console.log("SeeYa.play();");
+                        }
+                        else {
+                            SeeYa.pause();
+                            console.log("SeeYa.pause();");
+                        }
                     }
-                }
-                if (direct_view_flag) {
-                    if (!SeeYa.playing()) SeeYa.play();
-                }
-                else {
-                    SeeYa.pause();
                 }
                 if (n_distance > 0) {
                     avg_distance = sum_distance / n_distance
