@@ -852,7 +852,7 @@
                     rayorg.y += ego_radius * offset * direction.x;
                     rayorg.z = .5;
                     let elm = { rc: new THREE.Raycaster(rayorg, direction), dd: ego_radius * (1 - Math.sin(Math.acos(offset))) };
-                    elm.dd = ego_radius * Math.abs(offset)
+                    elm.dd = .6 * ego_radius * Math.abs(offset)
                     r.push(elm);
                     //console.log(i + ": " + elm.dd);
                 }
@@ -976,8 +976,8 @@
                     }
                     else if (aliens[i].status == al_livingdead) {
                         if (aliens[i].object.visible) {
-                            function get_new_direction(object) {
-                                let improved_point = aliens[i].object.position.clone();
+                            function get_new_direction(a) {
+                                let improved_point = a.object.position.clone();
                                 let dw = [];
                                 for (let probe_angle = 0; probe_angle < 2 * Math.PI; probe_angle += 2 * Math.PI / 13) {
                                     let probedir = new THREE.Vector3();
