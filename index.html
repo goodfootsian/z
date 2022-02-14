@@ -435,6 +435,7 @@
             const al_livingdead = 0;
             const al_dead = 1;
             const al_petrified = 2;
+            const al_direct_view_to_ego = 3;
             //
             function build_lab() {
                 for (i of labwalls) {
@@ -690,7 +691,7 @@
                 myego.rotation.y = 0;
                 myego_angle = Math.PI;
                 myego_angle = Math.atan2(myego_lookaty0 - myego_y0, myego_lookatx0 - myego_x0);
-                myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, 1.5);
+                myego.position.set(sz_grid * myego_x0, sz_grid * myego_y0, .5);
                 mymagazine.visible = true;
                 mymagazine.position.set(mymagazine_x0 * sz_grid, mymagazine_y0 * sz_grid, .5);
                 //Invaders.play();
@@ -844,7 +845,8 @@
                 direction.z = 0;
                 const n_rays = 11;
                 let r = [];
-                if (text == "1037") {
+                const mytext = "direct view to ego"
+                if (text == mytext) {
                     let obj = undefined;
                     do {
                         obj = scene.getObjectByName("line");
@@ -878,7 +880,7 @@
                     elm.dd = .6 * ego_radius * Math.abs(offset)
                     r.push(elm);
                     elm.dd = dd2;
-                    if (text == "1037") {
+                    if (text == mytext) {
                         const material = new THREE.LineBasicMaterial({ color: 0xffff00 });
                         let points = [];
                         points.push(rayorg);
@@ -929,13 +931,13 @@
                 }
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 let result = false;
-                if (text == "1037") console.log("range=" + range)
+                if (text == mytext) console.log("range=" + range)
                 for (let i of dw) {
                     let object_in_range = (i.distance < range);
                     if (object_in_range) {
                         result = true;
                     }
-                    if (text == "1037") console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.object.name + "', z=");
+                    //if (text == mytext) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.object.name + "', z=");
                     //if (object_in_range) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
                     //break;
                 }
@@ -996,7 +998,6 @@
                 let sum_distance = 0;
                 let n_distance = 0;
                 let direct_view_flag = false;
-                let speed = alien_speed;
                 for (let i = 0; i < aliens.length; ++i) {
                     if (aliens[i].status == al_dead) {
                         continue;
@@ -1008,6 +1009,58 @@
                         n_distance++;
                         let dego = myego.position.distanceTo(aliens[i].object.position);
                         sum_distance += dego;
+                    }
+                    else if (aliens[i].status == al_direct_view_to_ego) {
+                        let dir2ego = myego.position.clone();
+                        dir2ego.sub(aliens[i].object.position);
+                        dir2ego.normalize();
+                        aliens[i].angle = Math.atan2(dir2ego.y, dir2ego.x);
+                        // make backup x
+                        let backup_position = aliens[i].object.position.clone();
+                        let backup_angle = aliens[i].angle;
+                        // move x
+                        aliens[i].object.position.x += alien_attack_speed * time_elapsed / 1000 * dir2ego.x;
+                        // check collision x
+                        if (thereis_collision2("1037", backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
+                            // restore backup
+                            aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
+                            aliens[i].angle = backup_angle;
+                        }
+                        // make backup y
+                        backup_position = aliens[i].object.position.clone();
+                        backup_angle = aliens[i].angle;
+                        // move y
+                        aliens[i].object.position.y += alien_attack_speed * time_elapsed / 1000 * dir2ego.y;
+                        // check collision y
+                        if (thereis_collision2("1037", backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
+                            // restore backup
+                            aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
+                            aliens[i].angle = backup_angle;
+                        }
+                        // check egohit
+                        console.log(aliens[i].object.position.distanceTo(myego.position));
+                        if (aliens[i].object.position.distanceTo(myego.position) < 1.2) {
+                            if (status == st_play && damage_onhold < Date.now()) {
+                                let damage = 20;
+                                damage *= (100 - status_armor) / 100;
+                                status_health -= damage;
+                                HAua.play();
+                                damage_onhold = Date.now() + 800;
+                                if (status_health <= 0) {
+                                    status_health = 0;
+                                    set_status(st_gameover);
+                                    myego.rotation.y = 1;
+                                    myego.rotation.x = 1;
+                                    EgoDying.play();
+                                    ZombieEating.play();
+                                    Invaders.pause();
+                                }
+                            }
+                        }
+                        // check if we can see the ego
+                        if (thereis_collision2("direct view to ego", aliens[i].object.position, myego.position, aliens[i].object, i, true, false) && collision_object.name != "ego") {
+                            aliens[i].status = al_livingdead;
+                        }
                     }
                     else if (aliens[i].status == al_livingdead) {
                         if (aliens[i].object.visible) {
@@ -1030,64 +1083,35 @@
                                 alert("deadlock");
                                 return 0;
                             }
-                            // make backup
-                            let backup_position = aliens[i].object.position.clone();
-                            let backup_angle = aliens[i].angle;
-                            // check if we can see the ego
                             n_distance++;
                             let dego = myego.position.distanceTo(aliens[i].object.position);
                             sum_distance += dego;
-                            let dir2ego = myego.position.clone();
-                            dir2ego.sub(aliens[i].object.position);
-                            dir2ego.normalize();
-                            //dw = get_distance_to_wall(aliens[i].object.position, dir2ego, false);
-                            //let direct_view_to_ego2 = (dw > dego);
-                            let direct_view_to_ego = (thereis_collision2("direct view to ego", aliens[i].object.position, myego.position, aliens[i].object, i, true, false) && collision_object.name == 'ego');
-                            //console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
-                            if (direct_view_to_ego) {
-                                // Direct view contact to ego
-                                direct_view_flag = true;
-                                aliens[i].angle = Math.atan2(dir2ego.y, dir2ego.x);
-                                //apply some random on the direction
-                                aliens[i].angle += (Math.random() - .5) * 2 * Math.PI / 360 * 45;
-                                speed = alien_attack_speed;
-                            }
                             let alien_direction = new THREE.Vector3();
                             calc_cartesian(alien_direction, aliens[i].angle);
-                            aliens[i].object.position.x += speed * time_elapsed / 1000 * alien_direction.x;
-                            aliens[i].object.position.y += speed * time_elapsed / 1000 * alien_direction.y;
+                            // make backup
+                            let backup_position = aliens[i].object.position.clone();
+                            let backup_angle = aliens[i].angle;
+                            // move
+                            aliens[i].object.position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
+                            aliens[i].object.position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
+                            // check collision
                             if (thereis_collision2("1037", backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
-                                if (!direct_view_to_ego) {
-                                    let d = aliens[i].object.position.distanceTo(myego.position);
-                                    AlienCollides.volume(5 / d);
-                                    AlienCollides.play();
-                                }
+                                let d = aliens[i].object.position.distanceTo(myego.position);
+                                AlienCollides.volume(5 / d);
+                                AlienCollides.play();
                                 // restore backup
                                 aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
                                 aliens[i].angle = backup_angle;
                                 // choose new direction
                                 aliens[i].angle = get_new_direction(aliens[i]);
-                                // check egohit
-                                if ((collision_reason == cr_ego || collision_object.name == 'ego') && status == st_play && damage_onhold < Date.now()) {
-                                    let damage = 20;
-                                    damage *= (100 - status_armor) / 100;
-                                    status_health -= damage;
-                                    HAua.play();
-                                    damage_onhold = Date.now() + 800;
-                                    if (status_health <= 0) {
-                                        status_health = 0;
-                                        set_status(st_gameover);
-                                        myego.rotation.y = 1;
-                                        myego.rotation.x = 1;
-                                        EgoDying.play();
-                                        ZombieEating.play();
-                                        Invaders.pause();
-                                    }
-                                }
                                 aliens[i].status = al_petrified;
                                 aliens[i].t0 = Date.now();
                             } else {
                                 debugcnt++;
+                            }
+                            // check if we can see the ego
+                            if (thereis_collision2("direct view to ego", aliens[i].object.position, myego.position, aliens[i].object, i, true, false) && collision_object.name == 'ego') {
+                                aliens[i].status = al_direct_view_to_ego;
                             }
                         }
                         if (direct_view_flag) {
@@ -1250,7 +1274,7 @@
             var lookatDir = new THREE.Vector3();
             var CP = new THREE.Vector3();
             function calc_cam_params(cam, lookatPoint, up) {
-                cam.copy(myego.position);
+                cam.copy(myegogun.position);
                 cam.x += cam_lookatDir_offset * Math.cos(myego_angle);
                 cam.y += cam_lookatDir_offset * Math.sin(myego_angle);
                 cam.z += cam_zoffset;
@@ -1315,7 +1339,8 @@
                     }
                 }
                 calc_cartesian(myego_direction, myego_angle)
-                myego.rotation.z = Math.PI / 2 + myego_angle;
+                myegogun.rotation.z = Math.PI / 2 + myego_angle;
+                myegogun.position.set(myego.position.x, myego.position.y, 1.5);
                 // update egospeed
                 if (pressedKeys[38] || pressedKeys[40] || pressedKeys[188] || pressedKeys[190]) {
                     egospeed += ego_acceleration * time_elapsed / 1000;
