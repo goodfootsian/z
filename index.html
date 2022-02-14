@@ -220,12 +220,12 @@
             var myego_y0 = 4;
             var myego_lookatx0 = 0;
             var myego_lookaty0 = 0;
-            var myego = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 1, 15), new THREE.MeshStandardMaterial({ color: 0x777777 }));
-            scene.add(myego);
+            var myegogun = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 1, 15), new THREE.MeshStandardMaterial({ color: 0x777777 }));
+            scene.add(myegogun);
             const ego_radius = .5;
-            var myego_sphere = new THREE.Mesh(new THREE.SphereGeometry(ego_radius), new THREE.MeshBasicMaterial({ color: 0x000055 }));
-            myego_sphere.name = "ego";
-            scene.add(myego_sphere);
+            var myego = new THREE.Mesh(new THREE.SphereGeometry(ego_radius, 64, 32), new THREE.MeshBasicMaterial({ color: 0x000055 }));
+            myego.name = "ego";
+            scene.add(myego);
             // turn ego using the mouse
             var mouseX0;
             var mouseY0;
@@ -775,14 +775,13 @@
             const cr_armors = 8;
             const cr_labwindows = 9;
             function   thereis_collision (pos0, pos1, a_object, alien_i, check_ego) {
-                return thereis_collision2(pos0, pos1, a_object, alien_i, check_ego);
-                myego_sphere.position.set(myego.position.x, myego.position.y, .5);
+                return thereis_collision2("-", pos0, pos1, a_object, alien_i, check_ego);
                 collision_reason = -1;
                 collision_object = undefined;
                 collision_index = -1;
                 if (check_ego) {
                     let b1 = new THREE.Box3();
-                    b1.setFromObject(myego_sphere);
+                    b1.setFromObject(myego);
                     let b2 = new THREE.Box3();
                     b2.setFromObject(a_object);
                     b2.intersect(b1);
@@ -833,8 +832,8 @@
                 }
                 return false;
             }
-            function thereis_collision2(pos0, pos1, a_object, alien_i, check_ego, check_window = true) {
-                myego_sphere.position.set(myego.position.x, myego.position.y, .5);
+            function thereis_collision2(text, pos0, pos1, a_object, alien_i, check_ego, check_window = true) {
+                console.log("thereis_collision2(" + text + ", " + a_object.name + ")");
                 collision_reason = -1;
                 collision_object = undefined;
                 collision_index = -1;
@@ -843,18 +842,53 @@
                 direction.sub(pos0);
                 direction.normalize();
                 direction.z = 0;
-                const n_rays = 5;
+                const n_rays = 11;
                 let r = [];
+                if (text == "1037") {
+                    let obj = undefined;
+                    do {
+                        obj = scene.getObjectByName("line");
+                        if (obj != undefined) {
+                            scene.remove(obj);
+
+                        }
+                    } while (obj != undefined)
+                }
                 for (let i = 0; i < n_rays; ++i) {
                     let offset = i / (n_rays - 1) * 2 - 1;
                     let rayorg = pos0.clone();
                     rayorg.x += ego_radius * offset * -direction.y;
                     rayorg.y += ego_radius * offset * direction.x;
                     rayorg.z = .5;
+                    let rayorg2 = rayorg.clone();
+                    rayorg2.add(direction);
+                    rayorg2.add(direction);
+                    let direction2 = direction.clone();
+                    direction2.x = - direction2.x;
+                    direction2.y = - direction2.y;
+                    let rc2 = new THREE.Raycaster(rayorg2, direction2);
+                    let iresult = rc2.intersectObject(a_object);
+                    let dd2 = 0;
+                    if (iresult.length) {
+                        rayorg2.x += direction2.x * iresult[0].distance;
+                        rayorg2.y += direction2.y * iresult[0].distance;
+                        rayorg.copy(rayorg2);
+                    }
                     let elm = { rc: new THREE.Raycaster(rayorg, direction), dd: ego_radius * (1 - Math.sin(Math.acos(offset))) };
                     elm.dd = .6 * ego_radius * Math.abs(offset)
                     r.push(elm);
-                    //console.log(i + ": " + elm.dd);
+                    elm.dd = dd2;
+                    if (text == "1037") {
+                        const material = new THREE.LineBasicMaterial({ color: 0xffff00 });
+                        let points = [];
+                        points.push(rayorg);
+                        points.push(new THREE.Vector3(rayorg.x + range * direction.x, rayorg.y + range * direction.y, rayorg.z));
+                        points.push(new THREE.Vector3(rayorg.x + range * direction.x, rayorg.y + range * direction.y, rayorg.z + 3));
+                        let geometry = new THREE.BufferGeometry().setFromPoints(points);
+                        let line = new THREE.Line(geometry, material);
+                        line.name = "line";
+                        scene.add(line);
+                    }
                 }
                 let md = 1000000000;
                 let dw = [];
@@ -878,7 +912,7 @@
                     checkobject(i)
                 }
                 if (check_ego) {
-                    checkobject(myego_sphere);
+                    checkobject(myego);
                 }
                 //checkobject(mytransporter);
                 //checkobject(mymagazine);
@@ -895,12 +929,13 @@
                 }
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 let result = false;
+                if (text == "1037") console.log("range=" + range)
                 for (let i of dw) {
-                    let object_in_range = (i.distance < range + ego_radius);
+                    let object_in_range = (i.distance < range);
                     if (object_in_range) {
                         result = true;
                     }
-                    //console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.object.name + "', z=");
+                    if (text == "1037") console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.object.name + "', z=");
                     //if (object_in_range) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
                     //break;
                 }
@@ -976,6 +1011,7 @@
                     }
                     else if (aliens[i].status == al_livingdead) {
                         if (aliens[i].object.visible) {
+                            //aliens[i].angle = Math.PI / 4;
                             function get_new_direction(a) {
                                 let improved_point = a.object.position.clone();
                                 let dw = [];
@@ -1006,7 +1042,7 @@
                             dir2ego.normalize();
                             //dw = get_distance_to_wall(aliens[i].object.position, dir2ego, false);
                             //let direct_view_to_ego2 = (dw > dego);
-                            let direct_view_to_ego = (thereis_collision2(aliens[i].object.position, myego_sphere.position, aliens[i].object, i, true, false) && collision_object.name == 'ego');
+                            let direct_view_to_ego = (thereis_collision2("direct view to ego", aliens[i].object.position, myego.position, aliens[i].object, i, true, false) && collision_object.name == 'ego');
                             //console.log("direct_view_to_ego=" + direct_view_to_ego + ", direct_view_to_ego2=" + direct_view_to_ego2 + ", name=" + collision_object.name);
                             if (direct_view_to_ego) {
                                 // Direct view contact to ego
@@ -1020,7 +1056,7 @@
                             calc_cartesian(alien_direction, aliens[i].angle);
                             aliens[i].object.position.x += speed * time_elapsed / 1000 * alien_direction.x;
                             aliens[i].object.position.y += speed * time_elapsed / 1000 * alien_direction.y;
-                            if (thereis_collision(backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
+                            if (thereis_collision2("1037", backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
                                 if (!direct_view_to_ego) {
                                     let d = aliens[i].object.position.distanceTo(myego.position);
                                     AlienCollides.volume(5 / d);
@@ -1155,7 +1191,7 @@
                         i.object.position.set(i.object.position.x + bulletspeed * time_elapsed / 1000 * Math.cos(i.angle), i.object.position.y + bulletspeed * time_elapsed / 1000 * Math.sin(i.angle), i.object.position.z);
                         // check collision
                         i.fireball.scale.set(i.x, i.x, i.x);
-                        if (thereis_collision(backup_position, i.object.position, i.object, -1, false)) {
+                        if (thereis_collision2("1172", backup_position, i.object.position, i.object, -1, false)) {
                             i.object.visible = false;
                             i.fireball.visible = false;
                             if (collision_reason == cr_aliens || collision_object.name == 'alien') {
@@ -1296,50 +1332,52 @@
                     let pos1 = myego.position.clone();
                     pos1.x += ego_maxspeed * time_elapsed / 1000 * myego_direction.x;
                     pos1.y += ego_maxspeed * time_elapsed / 1000 * myego_direction.y;
-                    let b = thereis_collision2(pos0, pos1, myego_sphere, -1, false, true);
+                    let b = thereis_collision2("experimental", pos0, pos1, myego, -1, false, true);
                     console.log("thereis_collision2()=" + b);
                 }
-                // move ego x
-                var backup_position = myego.position.clone();
-                if (pressedKeys[38]) {
-                    //up
-                    myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.x;
-                }
-                if (pressedKeys[40]) {
-                    //down
-                    myego.position.x -= egospeed * time_elapsed / 1000 * myego_direction.x;
-                }
-                if (pressedKeys[188] || (pressedKeys[37] && pressedKeys[18])) {
-                    // strafe left
-                    myego.position.x -= egospeed * time_elapsed / 1000 * myego_direction.y;
-                }
-                if (pressedKeys[190] || (pressedKeys[39] && pressedKeys[18])) {
-                    // strafe right
-                    myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.y;
-                }
-                if (thereis_collision(backup_position, myego.position, myego_sphere, -1, false, true)) {
-                    myego.position.set(backup_position.x, backup_position.y, backup_position.z)
-                }
-                // move ego y
-                var backup_position = myego.position.clone();
-                if (pressedKeys[38]) {
-                    //up
-                    myego.position.y += egospeed * time_elapsed / 1000 * myego_direction.y;
-                }
-                if (pressedKeys[40]) {
-                    //down
-                    myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.y;
-                }
-                if (pressedKeys[188] || (pressedKeys[37] && pressedKeys[18])) {
-                    // strafe left
-                    myego.position.y += egospeed * time_elapsed / 1000 * myego_direction.x;
-                }
-                if (pressedKeys[190] || (pressedKeys[39] && pressedKeys[18])) {
-                    // strafe right
-                    myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.x;
-                }
-                if (thereis_collision(backup_position, myego.position, myego_sphere, -1, false, true)) {
-                    myego.position.set(backup_position.x, backup_position.y, backup_position.z)
+                if (egospeed > 0) {
+                    // move ego x
+                    var backup_position = myego.position.clone();
+                    if (pressedKeys[38]) {
+                        //up
+                        myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.x;
+                    }
+                    if (pressedKeys[40]) {
+                        //down
+                        myego.position.x -= egospeed * time_elapsed / 1000 * myego_direction.x;
+                    }
+                    if (pressedKeys[188] || (pressedKeys[37] && pressedKeys[18])) {
+                        // strafe left
+                        myego.position.x -= egospeed * time_elapsed / 1000 * myego_direction.y;
+                    }
+                    if (pressedKeys[190] || (pressedKeys[39] && pressedKeys[18])) {
+                        // strafe right
+                        myego.position.x += egospeed * time_elapsed / 1000 * myego_direction.y;
+                    }
+                    if (thereis_collision2("1334", backup_position, myego.position, myego, -1, false, true)) {
+                        myego.position.set(backup_position.x, backup_position.y, backup_position.z)
+                    }
+                    // move ego y
+                    var backup_position = myego.position.clone();
+                    if (pressedKeys[38]) {
+                        //up
+                        myego.position.y += egospeed * time_elapsed / 1000 * myego_direction.y;
+                    }
+                    if (pressedKeys[40]) {
+                        //down
+                        myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.y;
+                    }
+                    if (pressedKeys[188] || (pressedKeys[37] && pressedKeys[18])) {
+                        // strafe left
+                        myego.position.y += egospeed * time_elapsed / 1000 * myego_direction.x;
+                    }
+                    if (pressedKeys[190] || (pressedKeys[39] && pressedKeys[18])) {
+                        // strafe right
+                        myego.position.y -= egospeed * time_elapsed / 1000 * myego_direction.x;
+                    }
+                    if (thereis_collision2("1355", backup_position, myego.position, myego, -1, false, true)) {
+                        myego.position.set(backup_position.x, backup_position.y, backup_position.z)
+                    }
                 }
                 // check magazine
                 {
