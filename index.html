@@ -597,7 +597,7 @@
                                 tmp.name = 'alien';
                                 scene.add(tmp);
                                 aliens.push({ status: al_livingdead, object: tmp, angle: Math.random() * 2 * Math.PI });
-                                console.log(aliens[0]);
+                                //console.log(aliens[0]);
                             }
                         }
                         else if (getcontent(i, j) == 'L') {
@@ -834,7 +834,7 @@
                 return false;
             }
             function thereis_collision2(text, pos0, pos1, a_object, alien_i, check_ego, check_window = true) {
-                console.log("thereis_collision2(" + text + ", " + a_object.name + ")");
+                //console.log("thereis_collision2(" + text + ", " + a_object.name + ")");
                 collision_reason = -1;
                 collision_object = undefined;
                 collision_index = -1;
@@ -845,7 +845,7 @@
                 direction.z = 0;
                 const n_rays = 11;
                 let r = [];
-                const mytext = "direct view to ego"
+                const mytext = "direct view to egoxxxxx"
                 if (text == mytext) {
                     let obj = undefined;
                     do {
@@ -931,15 +931,12 @@
                 }
                 dw.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
                 let result = false;
-                if (text == mytext) console.log("range=" + range)
+                //if (text == mytext) console.log("range=" + range)
                 for (let i of dw) {
                     let object_in_range = (i.distance < range);
                     if (object_in_range) {
                         result = true;
                     }
-                    //if (text == mytext) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.object.name + "', z=");
-                    //if (object_in_range) console.log(object_in_range + "[" + dw.indexOf(i) + "] " + i.distance + ", '" + i.name + "'");
-                    //break;
                 }
                 if (dw.length) {
                     collision_object = dw[0].object;
@@ -1012,7 +1009,7 @@
                     }
                     else if (aliens[i].status == al_direct_view_to_ego) {
                         if (!SeeYa.playing()) SeeYa.play();
-                        console.log("SeeYa.play();");
+                        //console.log("SeeYa.play();");
                         let dir2ego = myego.position.clone();
                         dir2ego.sub(aliens[i].object.position);
                         dir2ego.normalize();
@@ -1040,7 +1037,6 @@
                             aliens[i].angle = backup_angle;
                         }
                         // check egohit
-                        console.log(aliens[i].object.position.distanceTo(myego.position));
                         if (aliens[i].object.position.distanceTo(myego.position) < 1.2) {
                             if (status == st_play && damage_onhold < Date.now()) {
                                 let damage = 20;
@@ -1066,7 +1062,7 @@
                     }
                     else if (aliens[i].status == al_livingdead) {
                         SeeYa.pause();
-                        console.log("SeeYa.pause();");
+                        //console.log("SeeYa.pause();");
                         if (aliens[i].object.visible) {
                             //aliens[i].angle = Math.PI / 4;
                             function get_new_direction(a) {
@@ -1354,7 +1350,7 @@
                     pos1.x += ego_maxspeed * time_elapsed / 1000 * myego_direction.x;
                     pos1.y += ego_maxspeed * time_elapsed / 1000 * myego_direction.y;
                     let b = thereis_collision2("experimental", pos0, pos1, myego, -1, false, true);
-                    console.log("thereis_collision2()=" + b);
+                    //console.log("thereis_collision2()=" + b);
                 }
                 if (egospeed > 0) {
                     // move ego x
