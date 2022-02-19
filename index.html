@@ -596,7 +596,7 @@
                                 tmp.castShadow = true; // default is false
                                 tmp.name = 'alien';
                                 scene.add(tmp);
-                                aliens.push({ status: al_livingdead, object: tmp, angle: Math.random() * 2 * Math.PI });
+                                aliens.push({ status: al_livingdead, object: tmp, angle: Math.random() * 2 * Math.PI, nextmoan: 0, });
                                 //console.log(aliens[0]);
                             }
                         }
@@ -718,8 +718,13 @@
             var DoorStop = new Audio('DoorStop.mp3');
             Invaders.volume = 0.2;
             Invaders.loop = true;
-            var ZombieMoaning = new Howl({ src: ['Zombie Moaning.mp3'] });
-            ZombieMoaning.loop(true);
+            var Moan = [];
+            Moan.push(new Howl({ src: ['Moan1.mp3'] }));
+            Moan.push(new Howl({ src: ['Moan2.mp3'] }));
+            Moan.push(new Howl({ src: ['Moan3.mp3'] }));
+            Moan.push(new Howl({ src: ['Moan4.mp3'] }));
+            Moan.push(new Howl({ src: ['Moan5.mp3'] }));
+            Moan.push(new Howl({ src: ['Moan6.mp3'] }));
             var ZombieEating = new Audio('Zombie Eating.mp3');
             ZombieEating.loop = true;
             var SeeYa = new Howl({ src: ['SeeYa.mp3'] });
@@ -1079,9 +1084,19 @@
                                 alert("deadlock");
                                 return 0;
                             }
-                            n_distance++;
-                            let dego = myego.position.distanceTo(aliens[i].object.position);
-                            sum_distance += dego;
+                            if (aliens[i].nextmoan < Date.now()) {
+                                if (aliens[i].nextmoan != 0) {
+                                    let dego = myego.position.distanceTo(aliens[i].object.position);
+                                    let moaningvolume = 5 / dego;
+                                    if (moaningvolume < 0) moaningvolume = 0;
+                                    if (moaningvolume >= 1) moaningvolume = 1;
+                                    let m = parseInt(Math.random() * Moan.length);
+                                    Moan[m].volume(moaningvolume);
+                                    Moan[m].play();
+                                    console.log(aliens[i].nextmoan + ", Moan[" + m + "].play();");
+                                }
+                                aliens[i].nextmoan = Date.now() + parseInt(Math.random() * 8 + 4) * 1000;
+                            }
                             // check if we can see the ego
                             if (thereis_collision2("direct view to ego", aliens[i].object.position, myego.position, aliens[i].object, i, true, false) && collision_object.name == 'ego') {
                                 aliens[i].status = al_direct_view_to_ego;
@@ -1122,16 +1137,17 @@
                     SeeYa.pause();
                     //console.log("SeeYa.pause();");
                 }
+                /*
+                let moaningvolume = 0;
                 if (n_distance > 0) {
                     avg_distance = sum_distance / n_distance
-                    let volume = 5 / avg_distance; // / avg_distance;
-                    if (volume < 0) volume = 0;
-                    if (volume >= 1) volume = 1;
-                    ZombieMoaning.volume(volume);
+                    moaningvolume = 5 / avg_distance; // / avg_distance;
+                    if (moaningvolume < 0) moaningvolume = 0;
+                    if (moaningvolume >= 1) moaningvolume = 1;
                 } else {
                     Invaders.pause();
-                    ZombieMoaning.volume(0);
                 }
+                */
             }
 
             //
@@ -1559,8 +1575,6 @@
                             status_health = 80;
                             ZombieEating.pause();
                             Invaders.play();
-                            ZombieMoaning.play();
-                            console.log("ZombieMoaning.play()");
                             init_game();
                             set_status(st_play);
                             break;
@@ -1600,8 +1614,6 @@
                     if (title_pct >= 100) {
                         textH.style.visibility = 'hidden';
                         title_t0 = 0;
-                        ZombieMoaning.play();
-                        //console.log("ZombieMoaning.play()");
                         set_status(st_play);
                         Invaders.play();
                     } else {
