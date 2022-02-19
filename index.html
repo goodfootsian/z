@@ -1004,7 +1004,7 @@
                         continue;
                     }
                     else if (aliens[i].status == al_petrified) {
-                        if (Date.now() > aliens[i].t0 + 500) {
+                        if (Date.now() > aliens[i].t0 + 700) {
                             aliens[i].status = al_livingdead;
                         }
                         n_distance++;
@@ -1093,7 +1093,7 @@
                                     let m = parseInt(Math.random() * Moan.length);
                                     Moan[m].volume(moaningvolume);
                                     Moan[m].play();
-                                    console.log(aliens[i].nextmoan + ", Moan[" + m + "].play();");
+                                    //console.log(aliens[i].nextmoan + ", Moan[" + m + "].play();");
                                 }
                                 aliens[i].nextmoan = Date.now() + parseInt(Math.random() * 8 + 4) * 1000;
                             }
@@ -1115,7 +1115,7 @@
                                     let d = aliens[i].object.position.distanceTo(myego.position);
                                     AlienCollides.volume(5 / d);
                                     AlienCollides.play();
-                                    console.log("AlienCollides.play();");
+                                    //console.log("AlienCollides.play();");
                                     // restore backup
                                     aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
                                     aliens[i].angle = backup_angle;
