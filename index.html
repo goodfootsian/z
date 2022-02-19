@@ -1008,8 +1008,7 @@
                         sum_distance += dego;
                     }
                     else if (aliens[i].status == al_direct_view_to_ego) {
-                        if (!SeeYa.playing()) SeeYa.play();
-                        //console.log("SeeYa.play();");
+                        direct_view_flag = true;
                         let dir2ego = myego.position.clone();
                         dir2ego.sub(aliens[i].object.position);
                         dir2ego.normalize();
@@ -1061,8 +1060,6 @@
                         }
                     }
                     else if (aliens[i].status == al_livingdead) {
-                        SeeYa.pause();
-                        //console.log("SeeYa.pause();");
                         if (aliens[i].object.visible) {
                             //aliens[i].angle = Math.PI / 4;
                             function get_new_direction(a) {
@@ -1115,6 +1112,14 @@
                             }
                         }
                     }
+                }
+                if (direct_view_flag) {
+                    if (!SeeYa.playing()) SeeYa.play();
+                    //console.log("SeeYa.play();");
+                }
+                else {
+                    SeeYa.pause();
+                    //console.log("SeeYa.pause();");
                 }
                 if (n_distance > 0) {
                     avg_distance = sum_distance / n_distance
