@@ -986,7 +986,6 @@
 
             }
 
-            var debugcnt = 0;
             var damage_onhold = 0;
             const alien_speed = 4; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
             const alien_attack_speed = 6; // unit is m/sec...1m is 1 unit in THREE.js coordinate system
@@ -1083,32 +1082,34 @@
                             n_distance++;
                             let dego = myego.position.distanceTo(aliens[i].object.position);
                             sum_distance += dego;
-                            let alien_direction = new THREE.Vector3();
-                            calc_cartesian(alien_direction, aliens[i].angle);
-                            // make backup
-                            let backup_position = aliens[i].object.position.clone();
-                            let backup_angle = aliens[i].angle;
-                            // move
-                            aliens[i].object.position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
-                            aliens[i].object.position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
-                            // check collision
-                            if (thereis_collision2("1037", backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
-                                let d = aliens[i].object.position.distanceTo(myego.position);
-                                AlienCollides.volume(5 / d);
-                                AlienCollides.play();
-                                // restore backup
-                                aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
-                                aliens[i].angle = backup_angle;
-                                // choose new direction
-                                aliens[i].angle = get_new_direction(aliens[i]);
-                                aliens[i].status = al_petrified;
-                                aliens[i].t0 = Date.now();
-                            } else {
-                                debugcnt++;
-                            }
                             // check if we can see the ego
                             if (thereis_collision2("direct view to ego", aliens[i].object.position, myego.position, aliens[i].object, i, true, false) && collision_object.name == 'ego') {
                                 aliens[i].status = al_direct_view_to_ego;
+                            }
+                            else {
+                                let alien_direction = new THREE.Vector3();
+                                calc_cartesian(alien_direction, aliens[i].angle);
+                                // make backup
+                                let backup_position = aliens[i].object.position.clone();
+                                let backup_angle = aliens[i].angle;
+                                // move
+                                aliens[i].object.position.x += alien_speed * time_elapsed / 1000 * alien_direction.x;
+                                aliens[i].object.position.y += alien_speed * time_elapsed / 1000 * alien_direction.y;
+                                // check collision
+                                if (thereis_collision2("1037", backup_position, aliens[i].object.position, aliens[i].object, i, true)) {
+                                    let d = aliens[i].object.position.distanceTo(myego.position);
+                                    AlienCollides.volume(5 / d);
+                                    AlienCollides.play();
+                                    console.log("AlienCollides.play();");
+                                    // restore backup
+                                    aliens[i].object.position.set(backup_position.x, backup_position.y, backup_position.z)
+                                    aliens[i].angle = backup_angle;
+                                    // choose new direction
+                                    aliens[i].angle = get_new_direction(aliens[i]);
+                                    aliens[i].status = al_petrified;
+                                    aliens[i].t0 = Date.now();
+                                } else {
+                                }
                             }
                         }
                     }
