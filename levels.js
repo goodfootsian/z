@@ -11,6 +11,7 @@ images['8'] = 'pizza.png'
 images['9'] = 'tadjine.png'
 images['a'] = 'beeftarar.png'
 images['b'] = 'Maya Bild Gesichter.jpg'
+images['c'] = 'Bild Maya Ornament.jpg'
 
 class lab_class {
     constructor() {
@@ -31,13 +32,13 @@ thislab.matrix.push("                                                +       +  
 thislab.matrix.push("                                                |       |                                                                ");
 thislab.matrix.push("                                                +       +                                                                ");
 thislab.matrix.push("                                                |       |                                                                ");
-thislab.matrix.push("+-w-+---+-w-+---+-w-+-pb+-w-+---+---+---+---+---+-D-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+-----w-+");
+thislab.matrix.push("+-w-+---+-w-+---+-w-+-pb+-w-+---+---+---+---+---+-D-+-W-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+-----w-+");
 thislab.matrix.push("+                         A | H |                                       | H |                                   |       w");
 thislab.matrix.push("+                           +   +                                       +   +                                   +       +");
 thislab.matrix.push("+ E   M   L                 D Z1D                                       D Z2D Z6                                D     Z2w");
 thislab.matrix.push("+                           +   +                                       +   +                                   +       +");
 thislab.matrix.push("+ A                         | H |                                       | H |                                   | T     w");
-thislab.matrix.push("+-w-+---+-w-+---+-w-+---+-w-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+-w-+");
+thislab.matrix.push("+-w-+---+-w-+---+-w-+-pc+-w-+---+---+---+---+---+-D-+-W-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+-w-+");
 thislab.matrix.push("                                                | Z1  A |                                                                ");
 thislab.matrix.push("                                                +       +                                                                ");
 thislab.matrix.push("                                                |       |                                                                ");
