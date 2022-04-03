@@ -10,6 +10,7 @@ images['7'] = 'wm.png'
 images['8'] = 'pizza.png'
 images['9'] = 'tadjine.png'
 images['a'] = 'beeftarar.png'
+images['b'] = 'Maya Bild Gesichter.jpg'
 
 class lab_class {
     constructor() {
@@ -23,13 +24,26 @@ var lab = [];
 //
 var thislab = new lab_class;
 lab.push(thislab);
-thislab.matrix.push("+---+---+---+---+---+---+-------+");
-thislab.matrix.push("+                       |   w   w");
-thislab.matrix.push("+                       +   +   +");
-thislab.matrix.push("+                 M   E D L w Z2w");
-thislab.matrix.push("+                       +   +   +");
-thislab.matrix.push("+ A                   T |   w   |");
-thislab.matrix.push("+---+---+---+---+---+---+---+---+");
+thislab.title = "The Gallery"
+thislab.matrix.push("                                                +-W-+-W-+                                                                ");
+thislab.matrix.push("                                                | Z1  A |                                                                ");
+thislab.matrix.push("                                                +       +                                                                ");
+thislab.matrix.push("                                                |       |                                                                ");
+thislab.matrix.push("                                                +       +                                                                ");
+thislab.matrix.push("                                                |       |                                                                ");
+thislab.matrix.push("+-w-+---+-w-+---+-w-+-pb+-w-+---+---+---+---+---+-D-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+-----w-+");
+thislab.matrix.push("+                         A | H |                                       | H |                                   |       w");
+thislab.matrix.push("+                           +   +                                       +   +                                   +       +");
+thislab.matrix.push("+ E   M   L                 D Z1D                                       D Z2D Z6                                D     Z2w");
+thislab.matrix.push("+                           +   +                                       +   +                                   +       +");
+thislab.matrix.push("+ A                         | H |                                       | H |                                   | T     w");
+thislab.matrix.push("+-w-+---+-w-+---+-w-+---+-w-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+-w-+");
+thislab.matrix.push("                                                | Z1  A |                                                                ");
+thislab.matrix.push("                                                +       +                                                                ");
+thislab.matrix.push("                                                |       |                                                                ");
+thislab.matrix.push("                                                +       +                                                                ");
+thislab.matrix.push("                                                |       |                                                                ");
+thislab.matrix.push("                                                +-W-+-W-+                                                                ");
 //
 var thislab = new lab_class;
 lab.push(thislab);
@@ -104,7 +118,7 @@ thislab.matrix.push("                                     ");
 //
 var thislab = new lab_class;
 lab.push(thislab);
-thislab.title = "Marie Curie 8"
+thislab.title = "The House of Z"
 thislab.matrix.push("                        +-W-+-W-+                            ");
 thislab.matrix.push("                        W H   H W                         T  ");
 thislab.matrix.push("+---+-P8+-Pa+-P9+---+---+       +---+---+---+---+---+        ");
@@ -133,6 +147,7 @@ thislab.matrix.push("+   +---+---+---+---+   +                                  
 thislab.matrix.push("W E   M   L           Z9D                                   w");
 thislab.matrix.push("+---+---+---+---+---+---+-----------------------------------+");
 //
+/*
 var thislab = new lab_class;
 lab.push(thislab);
 thislab.matrix.push("+---+---+-------+---+---+---+---+---+");
@@ -154,9 +169,11 @@ thislab.matrix.push("+     M                     +     H +   +");
 thislab.matrix.push("+                           +---+---+   +");
 thislab.matrix.push("+ E                                     +");
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
+*/
 //
 var thislab = new lab_class;
 lab.push(thislab);
+thislab.title = "The Small Labyrinth"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 thislab.matrix.push("+                   +                 L +");
 thislab.matrix.push("+                   +   +---+   +---+   +");
@@ -171,6 +188,7 @@ thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 //
 var thislab = new lab_class;
 lab.push(thislab);
+thislab.title = "The Big Labyrinth Bag Ma'm"
 thislab.matrix.push("+---+---+---+---+---+---+---+---+---+---+");
 thislab.matrix.push("+                   +                 L +");
 thislab.matrix.push("+   +---+   +---+   +   +---+   +---+   +");
